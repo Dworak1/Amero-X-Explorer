@@ -1,0 +1,18 @@
+[Unit]
+Description=Blockscout Explorer
+After=network.target postgresql.service node1.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/Amero X MainNet/blockscout
+# We use bash -lc to ensure it loads any environmental variables from ~/.bashrc or ~/.profile (like asdf or elang installations).
+ExecStart=/bin/bash -lc 'source .env && mix phx.server'
+StandardOutput=append:/root/Amero X MainNet/blockscout/blockscout.log
+StandardError=append:/root/Amero X MainNet/blockscout/blockscout.log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

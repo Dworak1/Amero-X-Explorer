@@ -1,0 +1,11 @@
+<%= for _ <- 1..10 do %>
+<div data-loading-message data-selector="loading-message" class="col-12 px-0">
+  <div class="d-flex flex-row align-items-center" style="width: 100%; padding: 15px 10px; border-bottom: 1px solid rgba(226, 182, 73, 0.15);">
+    <div style="width: 45px; height: 45px; background-color: rgba(226, 182, 73, 0.05); border-radius: 8px; margin-right: 15px;"></div>
+    <div class="flex-grow-1">
+      <div class="dark-block-loader mb-2"></div>
+      <div class="dark-block-loader w-50"></div>
+    </div>
+  </div>
+</div>
+<% end %>

@@ -1,0 +1,130 @@
+c<div class='dashboard-banner-container' data-page="chain-details" style="background-image: none; background-color: #000000; border-bottom: none; padding: 3rem 0;">
+  <div class="container-fluid px-4 px-xl-5">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 style="color: #ffffff; font-weight: 600; font-size: 1.5rem; margin-bottom: 20px;">The Amero X Blockchain Explorer</h1>
+        <div style="margin-bottom: 20px;">
+          <%= render BlockScoutWeb.LayoutView, "_search.html", conn: @conn, id: "hero-search-autocomplete", additional_classes: ["w-100"] %>
+        </div>
+
+      </div>
+      <div class="col-lg-4 d-none d-lg-block text-right">
+        <%= render BlockScoutWeb.Advertisement.BannersAdView, "_banner_728.html", conn: @conn %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid px-4 px-xl-5" style="margin-top: -30px; position: relative; z-index: 10;">
+  <div class="card" style="padding: 0; margin-bottom: 2rem; overflow: hidden;">
+    <div class="row m-0">
+      <div class="col-md-8 p-0" style="border-right: 1px solid rgba(226, 182, 73, 0.15);">
+        <div class="row m-0 h-100">
+          <!-- Row 1 -->
+          <div class="col-6 d-flex flex-column justify-content-center" style="border-bottom: 1px solid rgba(226, 182, 73, 0.15); border-right: 1px solid rgba(226, 182, 73, 0.15); padding: 30px 20px;">
+             <div>
+               <div style="font-size: 0.85rem; color: #A0A0A0; text-transform: uppercase; letter-spacing: 0.5px;">Transactions</div>
+               <div style="font-size: 1.3rem; font-weight: 500; color: #ffffff; margin-top: 5px;">
+                 <span data-selector="transaction-count"><%= BlockScoutWeb.Cldr.Number.to_string!(@transaction_estimated_count, format: "#,###") %></span>
+               </div>
+             </div>
+          </div>
+          <div class="col-6 d-flex flex-column justify-content-center" style="border-bottom: 1px solid rgba(226, 182, 73, 0.15); padding: 30px 20px;">
+             <div>
+               <div style="font-size: 0.85rem; color: #A0A0A0; text-transform: uppercase; letter-spacing: 0.5px;">Total Addresses</div>
+               <div style="font-size: 1.3rem; font-weight: 500; color: #ffffff; margin-top: 5px;">
+                  <span><%= if is_integer(@address_count), do: BlockScoutWeb.Cldr.Number.to_string!(@address_count, format: "#,###"), else: @address_count %></span>
+               </div>
+             </div>
+          </div>
+          <!-- Row 2 -->
+          <div class="col-6 d-flex flex-column justify-content-center" style="border-right: 1px solid rgba(226, 182, 73, 0.15); padding: 30px 20px;">
+             <div>
+               <div style="font-size: 0.85rem; color: #A0A0A0; text-transform: uppercase; letter-spacing: 0.5px;">Number of Blocks</div>
+               <div style="font-size: 1.3rem; font-weight: 500; color: #ffffff; margin-top: 5px;">
+                 <span data-selector="block-count"><%= BlockScoutWeb.Cldr.Number.to_string!(@block_count, format: "#,###") %></span>
+               </div>
+             </div>
+          </div>
+          <div class="col-6 d-flex flex-column justify-content-center" style="padding: 30px 20px;">
+             <div>
+               <div style="font-size: 0.85rem; color: #A0A0A0; text-transform: uppercase; letter-spacing: 0.5px;">Validators</div>
+               <div style="font-size: 1.3rem; font-weight: 500; color: #ffffff; margin-top: 5px;">
+                 <span><%= @validators_count %></span>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" style="padding: 30px;">
+         <div style="font-size: 0.85rem; color: #A0A0A0; text-transform: uppercase; letter-spacing: 0.5px;">Transaction History in 14 Days</div>
+         <div class="dashboard-banner-chart" style="width: 100%; height: 180px; margin-top: 10px;">
+           <canvas data-chart="historyChart"
+                   data-history_chart_paths='{<%= for {{key, value}, x} <- Enum.with_index(@chart_data_paths) do %>"<%= key %>":"<%= value %>"<%= if x<(map_size(@chart_data_paths)-1) do %>,<% end %><% end %>}'
+                   data-history_chart_config='<%= @chart_config_json %>'
+                   width="350" height="180">
+           </canvas>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+numChartData = <%= Enum.reduce(@chart_config, 0, fn (source, acc) -> acc + length(elem(source, 1)) end) %>
+document.documentElement.style.setProperty("--numChartData", numChartData);
+</script>
+
+<section class="container-fluid px-4 px-xl-5">
+  <div class="row">
+    <!-- Blocks Col -->
+    <div class="col-lg-6 mb-4 js-ad-dependant-mb-3">
+      <div class="card card-chain-blocks" style="overflow: hidden;">
+        <div class="card-body" style="padding-bottom: 0 !important;">
+          <h2 class="card-title lg-card-title margin-bottom-sm"><%= gettext "Latest Blocks" %></h2>
+          <div class="row" data-selector="chain-block-list" data-url="<%= chain_blocks_path(@conn, :chain_blocks) %>">
+             <button data-selector="error-message" class="alert alert-danger col-12 text-left" style="display: none;">
+               <span class="alert-link">Something went wrong, click to reload.</span>
+             </button>
+             <%= for _ <- 1..10 do %>
+             <div hidden data-selector="loading-message" class="col-12 px-0">
+               <div data-selector="chain-block">
+                 <div class="d-flex flex-row align-items-center" style="width: 100%; padding: 15px 10px; border-bottom: 1px solid rgba(226, 182, 73, 0.15);">
+                   <div style="width: 45px; height: 45px; background-color: rgba(226, 182, 73, 0.05); border-radius: 8px; margin-right: 15px;"></div>
+                   <div class="flex-grow-1">
+                     <div class="dark-block-loader mb-2"></div>
+                     <div class="dark-block-loader w-50"></div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             <% end %>
+          </div>
+        </div>
+        <div style="background-color: rgba(226, 182, 73, 0.03); border-top: 1px solid rgba(226, 182, 73, 0.15);">
+          <%= link("VIEW ALL BLOCKS →", to: blocks_path(BlockScoutWeb.Endpoint, :index), style: "display: block; width: 100%; text-align: center; padding: 15px; color: #A0A0A0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; text-decoration: none;") %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Transactions Col -->
+    <div class="col-lg-6 mb-4">
+      <div class="card card-chain-transactions" style="overflow: hidden;">
+        <div class="card-body" style="padding-bottom: 0 !important;">
+          <h2 class="card-title lg-card-title margin-bottom-sm"><%= gettext "Latest Transactions" %></h2>
+          <span data-selector="transactions-list" data-transactions-path="<%= @transactions_path %>">
+             <button data-selector="error-message" class="alert alert-danger col-12 text-left" style="display: none;">
+               <span class="alert-link">Something went wrong, click to retry.</span>
+             </button>
+             <div hidden data-selector="loading-message">
+               <%= render BlockScoutWeb.CommonComponentsView, "_tile-loader.html" %>
+             </div>
+          </span>
+        </div>
+        <div style="background-color: rgba(226, 182, 73, 0.03); border-top: 1px solid rgba(226, 182, 73, 0.15);">
+          <%= link("VIEW ALL TRANSACTIONS →", to: transaction_path(BlockScoutWeb.Endpoint, :index), style: "display: block; width: 100%; text-align: center; padding: 15px; color: #A0A0A0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; text-decoration: none;") %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

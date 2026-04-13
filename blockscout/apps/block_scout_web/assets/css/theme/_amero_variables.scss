@@ -1,0 +1,279 @@
+// =================================================================
+// Amero X Scan — Official Brand Theme
+// Clean Black & Gold Design System
+//
+// Gold:        #E2B649  (main accent)
+// Gold Dark:   #BF8800
+// Gold Light:  #FFD951
+// BG Main:     #000000
+// BG Card:     #0A0A0A
+// BG Surface:  #111111
+// Text:        #FFFFFF / #E8E8E8
+// =================================================================
+
+// --- Core Brand ---
+$primary: #E2B649; // Amero gold
+$secondary: #FFD951; // bright/light gold
+$tertiary: #BF8800; // darker gold for hover/shade
+$additional-font: #000000; // dark text on gold buttons
+
+// --- Body ---
+$body-bg: #000000;
+$body-color: #e8e8e8;
+
+body {
+    background-color: #000000 !important;
+}
+
+// --- Logo Size ---
+$navbar-logo-height: 22px;
+
+// --- Footer ---
+$footer-background-color: #000000;
+$footer-title-color: #E2B649;
+$footer-text-color: #A0A0A0;
+$footer-item-disc-color: $secondary;
+
+.footer-logo {
+    filter: brightness(0) invert(1);
+}
+
+// --- Dashboard Banner ---
+$dashboard-line-color-price: $secondary;
+$dashboard-banner-chart-legend-label-color: #BF8800;
+$dashboard-stats-item-label-color: #BF8800;
+$dashboard-banner-chart-legend-value-color: #ffffff;
+$dashboard-stats-item-value-color: #ffffff;
+$dashboard-stats-item-border-color: $secondary;
+$dashboard-banner-gradient-start: #000000;
+$dashboard-banner-gradient-end: #000000;
+$dashboard-banner-network-plain-container-background-color: #0A0A0A;
+
+// --- Navigation ---
+.navbar {
+    background-color: #000000 !important;
+    border-bottom: 1px solid rgba(#E2B649, 0.2) !important;
+    box-shadow: none !important;
+}
+
+// Logo text styling
+.logo-text {
+    color: #E2B649 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    font-size: 1.15rem !important;
+    text-transform: uppercase !important;
+}
+
+$dropdown-menu-item-hover-color: #000000 !default;
+$dropdown-menu-item-hover-background: $primary !default;
+$header-icon-color-hover: $primary;
+$header-icon-border-color-hover: $primary;
+
+// --- Buttons ---
+$btn-line-bg: #000000;
+$btn-line-color: $primary;
+$btn-copy-color: $primary;
+$btn-qr-color: $primary;
+$btn-address-card-icon-color: $primary;
+
+// gold button base
+.btn-sm,
+.btn-primary,
+.btn-line {
+    background-color: transparent !important;
+    border-color: #E2B649 !important;
+    color: #E2B649 !important;
+
+    &:hover {
+        background-color: #E2B649 !important;
+        color: #000000 !important;
+        border-color: #E2B649 !important;
+    }
+}
+
+.btn-primary {
+    background-color: #E2B649 !important;
+    color: #000000 !important;
+    border-color: #E2B649 !important;
+
+    &:hover {
+        background-color: #BF8800 !important;
+        color: #000000 !important;
+        border-color: #BF8800 !important;
+    }
+}
+
+
+// --- Links & Tiles ---
+$tile-body-a-color: $primary;
+$tile-type-block-color: $primary;
+$tile-type-transaction-color: $primary;
+$tile-type-progress-bar-color: $primary;
+
+a {
+    color: $primary;
+
+    &:hover {
+        color: #FFD951;
+        text-decoration: none;
+    }
+}
+
+// --- Cards / Panels ---
+$card-background-1: #0A0A0A;
+$card-tab-active: $primary;
+$card-bg: #0A0A0A;
+
+.tile,
+.tile-mined-blocks,
+.tile-transaction,
+.panel,
+.card {
+    background-color: #0A0A0A !important;
+    border: 1px solid rgba(#E2B649, 0.15) !important;
+    color: #e8e8e8 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.tile-bottom-contents,
+.tile-type-loading,
+.tile-type-block-animation,
+.dark-block-loader {
+    background-color: #0A0A0A !important;
+    color: #e8e8e8 !important;
+}
+
+.tile-title,
+.card-title {
+    color: #E2B649 !important;
+    font-weight: 600 !important;
+}
+
+.tile-type-block .tile-title {
+    background-color: #E2B649 !important;
+    color: #000000 !important;
+    padding-bottom: 1rem !important;
+}
+
+// --- Dashboard Layout ---
+.layout-container {
+    background-color: #000000 !important;
+
+    main {
+        background-color: #000000 !important;
+    }
+
+    .dashboard-banner-container {
+        background-image: none;
+        background-color: #000000 !important;
+        border-bottom: 1px solid rgba(#E2B649, 0.15);
+    }
+}
+
+// stat containers (block time, tx count, etc.)
+.dashboard-banner-network-plain-container {
+    background-color: #0A0A0A !important;
+    border-left: 2px solid #E2B649 !important;
+    border-radius: 4px;
+}
+
+// --- Badges ---
+$badge-neutral-color: #000000;
+$badge-neutral-background-color: $primary;
+$api-text-monospace-color: $primary;
+
+// --- Dropdowns ---
+$dropdown-bg: #111111;
+$dropdown-border-color: rgba(#E2B649, 0.2);
+$dropdown-link-color: #e8e8e8;
+$dropdown-link-hover-color: #000000;
+$dropdown-link-hover-bg: $primary;
+
+.dropdown-menu {
+    background-color: #111111 !important;
+    border: 1px solid rgba(#E2B649, 0.2) !important;
+}
+
+// --- Tables ---
+table th {
+    color: #E2B649 !important;
+    border-bottom: 1px solid rgba(#E2B649, 0.2) !important;
+    font-weight: 600 !important;
+    background-color: #0A0A0A !important;
+}
+
+table td {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #e8e8e8 !important;
+    background-color: #0A0A0A !important;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: #111111 !important;
+}
+
+// --- Inputs / Search ---
+.input,
+input,
+.form-control {
+    background-color: #111111 !important;
+    border: 1px solid rgba(#E2B649, 0.2) !important;
+    color: #3d3d3d !important;
+    border-radius: 6px !important;
+
+    &:focus {
+        border-color: #E2B649 !important;
+        box-shadow: 0 0 0 1px #E2B649 !important;
+        outline: none !important;
+    }
+}
+
+// Search bar
+.main-search-container input {
+    background-color: #111111 !important;
+    border: 1px solid rgba(#E2B649, 0.3) !important;
+    color: #4d4d4d !important;
+}
+
+// --- Pagination ---
+.page-link {
+    background-color: #111111 !important;
+    border: 1px solid rgba(#E2B649, 0.2) !important;
+    color: #E2B649 !important;
+
+    &:hover {
+        background-color: #E2B649 !important;
+        color: #000000 !important;
+    }
+}
+
+.page-item.active .page-link {
+    background-color: #E2B649 !important;
+    border-color: #E2B649 !important;
+    color: #000000 !important;
+}
+
+.page-item.disabled .page-link {
+    background-color: #0A0A0A !important;
+    border-color: rgba(#E2B649, 0.1) !important;
+    color: rgba(#E2B649, 0.4) !important;
+}
+
+// --- Tokens dropdown ---
+.token-balance-dropdown[aria-labelledby="dropdown-tokens"] {
+    .dropdown-items .dropdown-item:hover {
+        background-color: $primary !important;
+        color: #000000 !important;
+    }
+}
+
+// --- Dark theme tokens (used in night mode) ---
+$dark-primary: #E2B649;
+$dark-secondary: #FFD951;
+$dark-primary-alternate: #BF8800;
+
+// --- Link & active colors ---
+$link-color: $primary;

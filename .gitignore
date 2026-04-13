@@ -1,0 +1,40 @@
+# Environment and Secrets
+.env
+*.env
+*.key
+*.password
+*.json.bak
+genesis.json.bak
+
+# Logs
+*.log
+blockscout/logs/
+blockscout/temp/
+blockscout/ecto_setup.log
+blockscout/blockscout.log
+
+# Node State and Data (Crucial to ignore for size and security)
+node1/
+node2/
+node3/
+
+# Dependencies and Build Artifacts
+node_modules/
+blockscout/deps/
+blockscout/_build/
+blockscout/apps/*/node_modules/
+blockscout/apps/*/assets/node_modules/
+blockscout/apps/block_scout_web/assets/node_modules/
+
+# Elixir/Phoenix specific
+erl_crash.dump
+*.ez
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# Backups
+*.bak
+*.swp
+*~

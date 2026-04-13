@@ -1,0 +1,16 @@
+[Unit]
+Description=Amero X Mainnet Node 2
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/Amero X MainNet
+ExecStart=/usr/local/bin/polygon-edge server --data-dir ./node2 --chain ./genesis.json --grpc-address :20000 --libp2p :2478 --jsonrpc :8546 --seal
+StandardOutput=append:/root/Amero X MainNet/node2.log
+StandardError=append:/root/Amero X MainNet/node2.log
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

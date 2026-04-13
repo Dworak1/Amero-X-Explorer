@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  backend:
+    environment:
+        CHAIN_ID: '100'
+
+  frontend:
+    environment:
+        NEXT_PUBLIC_NETWORK_ID: '100'
+        NEXT_PUBLIC_NETWORK_NAME: 'Polygon Edge'
+        NEXT_PUBLIC_NETWORK_SHORT_NAME: 'Edge'
+        NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL: 'MATIC'
