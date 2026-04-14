@@ -1,8 +1,6 @@
 <nav class="glass-header fixed w-full top-0 z-50 px-4 py-3 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 rounded bg-amero-gold shadow-[0_0_15px_rgba(226,182,73,0.3)] flex items-center justify-center text-black font-bold text-lg group-hover:scale-105 transition-transform">
-            X
-        </div>
+        <img src="<%= static_path(@conn, "/images/amero_x_logo.png") %>" class="w-9 h-9 rounded-full group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(226,182,73,0.3)] object-cover" alt="Amero X Logo">
         <span class="text-xl font-bold tracking-tight text-white group-hover:text-amero-gold transition-colors">Amero X Scan</span>
     </a>
     
@@ -16,5 +14,41 @@
         <button id="theme-toggle" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 hover:border-amero-gold/50 px-3 py-1.5 rounded-lg border border-white/10 transition-all cursor-pointer">
             <svg id="theme-icon" class="w-4 h-4 text-amero-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
+        <button class="btn-add-chain-to-mm js-btn-add-chain-to-mm topnav-nav-link" style="background: rgba(226, 182, 73, 0.1); border: 1px solid rgba(226, 182, 73, 0.4); color: rgb(226, 182, 73); border-radius: 8px; font-weight: 600; padding: 6px 16px; margin: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: 0.3s ease-in-out;" onmouseover="this.style.background='rgba(226, 182, 73, 0.2)'; this.style.borderColor='#E2B649';" onmouseout="this.style.background='rgba(226, 182, 73, 0.1)'; this.style.borderColor='rgba(226, 182, 73, 0.4)';" onclick="addNetworkToMetamask()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width: 20px; margin-right: 8px; pointer-events: none;">
+            MetaMask
+        </button>
     </div>
 </nav>
+<script>
+  async function addNetworkToMetamask() {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const chainId = document.getElementById('js-chain-id')?.value || "93865";
+        const chainIdHex = "0x" + parseInt(chainId).toString(16);
+        const subnetwork = document.getElementById('js-subnetwork')?.value || "Amero-X";
+        const coinName = document.getElementById('js-coin-name')?.value || "AMX";
+        const blockExplorerUrls = [window.location.origin];
+
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: chainIdHex,
+            chainName: subnetwork,
+            rpcUrls: ['http://84.32.220.100:4000/'],
+            nativeCurrency: {
+              name: coinName,
+              symbol: coinName,
+              decimals: 18,
+            },
+            blockExplorerUrls: blockExplorerUrls
+          }]
+        });
+      } catch (error) {
+        console.error("Failed to add network to metamask", error);
+      }
+    } else {
+      alert("MetaMask is not installed. Please install the MetaMask extension to use this feature.");
+    }
+  }
+</script>

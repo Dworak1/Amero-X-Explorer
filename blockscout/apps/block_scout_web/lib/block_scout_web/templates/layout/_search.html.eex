@@ -1,8 +1,22 @@
-<div class="search-container flex items-center rounded-xl p-1.5 max-w-3xl w-full backdrop-blur-md <%= if assigns[:additional_classes] do @additional_classes |> Enum.join(" ") end %>">
-    <button class="flex-shrink-0 flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-lg border border-white/5 cursor-pointer transition-colors ml-0.5 whitespace-nowrap">
-        <%= gettext "All Filters" %>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-    </button>
+<div class="search-container relative z-50 flex items-center rounded-xl p-1.5 max-w-3xl w-full backdrop-blur-md <%= if assigns[:additional_classes] do @additional_classes |> Enum.join(" ") end %>">
+    <div class="relative flex-shrink-0">
+        <button type="button" id="search-filter-button" onclick="document.getElementById('search-filter-menu').classList.toggle('hidden')" class="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-lg border border-white/5 cursor-pointer transition-colors ml-0.5 whitespace-nowrap focus:outline-none">
+            <span id="search-filter-label"><%= gettext "All Filters" %></span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+
+        <div id="search-filter-menu" class="dropdown-menu hidden absolute left-0 z-50 mt-2 w-48 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.8)] bg-black/90 backdrop-blur-xl border border-amero-gold/30 py-2 focus:outline-none overflow-hidden">
+            <% filters = ["All Filters", "Addresses", "Tokens", "Name Tags", "Domain Names", "Labels", "Websites"] %>
+            <%= for {filter, index} <- Enum.with_index(filters) do %>
+                <button type="button" onclick="selectSearchFilter(this, '<%= filter %>')" class="search-filter-item group flex w-full items-center px-4 py-2.5 text-left hover:bg-amero-gold/10 transition-colors text-[13px] <%= if index == 0 do %>text-amero-gold font-medium<% else %>text-gray-300 font-normal<% end %>">
+                    <span class="w-5 flex-shrink-0 inline-flex items-center text-amero-gold checkmark <%= if index != 0 do %>hidden<% end %>">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </span>
+                    <span class="group-hover:text-amero-gold transition-colors"><%= Gettext.gettext(BlockScoutWeb.Gettext, filter) %></span>
+                </button>
+            <% end %>
+        </div>
+    </div>
     <div class="w-full relative flex items-center">
         <input
             id="<%= assigns[:id] || "search-autocomplete" %>"
@@ -20,3 +34,31 @@
         </button>
     </div>
 </div>
+
+<script>
+    document.addEventListener('click', function(event) {
+        var menu = document.getElementById('search-filter-menu');
+        var button = document.getElementById('search-filter-button');
+        if (menu && !menu.classList.contains('hidden') && !button.contains(event.target) && !menu.contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    function selectSearchFilter(element, filterName) {
+        document.getElementById('search-filter-label').innerText = filterName;
+        
+        document.querySelectorAll('.search-filter-item').forEach(function(item) {
+            item.classList.remove('text-amero-gold', 'font-medium');
+            item.classList.add('text-gray-300', 'font-normal');
+            var check = item.querySelector('.checkmark');
+            if (check) check.classList.add('hidden');
+        });
+
+        element.classList.remove('text-gray-300', 'font-normal');
+        element.classList.add('text-amero-gold', 'font-medium');
+        var activeCheck = element.querySelector('.checkmark');
+        if (activeCheck) activeCheck.classList.remove('hidden');
+
+        document.getElementById('search-filter-menu').classList.add('hidden');
+    }
+</script>

@@ -105,8 +105,9 @@ function getBaseConfig() {
           position: 'left',
           grid: baseGridStyle,
           border: { display: false },
+          beginAtZero: true,
+          min: 0,
           ticks: {
-            beginAtZero: true,
             callback: (value) => `$${numeral(value).format('0,0.00')}`,
             maxTicksLimit: 4,
             color: getAxisFontColor(),
@@ -117,6 +118,8 @@ function getBaseConfig() {
           position: 'right',
           grid: baseGridStyle,
           border: { display: false },
+          beginAtZero: true,
+          min: 0,
           ticks: {
             callback: () => '',
             maxTicksLimit: 6,
@@ -129,8 +132,9 @@ function getBaseConfig() {
           position: 'right',
           grid: baseGridStyle,
           border: { display: false },
+          beginAtZero: true,
+          min: 0,
           ticks: {
-            beginAtZero: true,
             callback: (value) => formatValue(value),
             maxTicksLimit: 4,
             color: getAxisFontColor(),

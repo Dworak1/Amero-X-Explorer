@@ -263,7 +263,19 @@ const elements = {
 
       const container = $el[0]
       if (state.blocksLoading === false) {
-        const blocks = map(state.blocks, ({ chainBlockHtml }) => $(chainBlockHtml)[0])
+        const isFirstLoadBlocks = oldState.blocksLoading && !state.blocksLoading
+        const oldBlockKeys = new Set(map(oldState.blocks, 'blockNumber'))
+        const blocks = map(state.blocks, ({ chainBlockHtml, blockNumber }, i) => {
+          const el = $(chainBlockHtml)[0]
+          if (isFirstLoadBlocks) {
+            el.classList.remove('new-item-enter')
+            el.classList.add('row-init')
+            el.style.animationDelay = `${i * 60}ms`
+          } else if (oldBlockKeys.has(blockNumber)) {
+            el.classList.remove('new-item-enter')
+          }
+          return el
+        })
         listMorph(container, blocks, { key: 'dataset.blockNumber', horizontal: true })
       }
     }
@@ -281,7 +293,19 @@ const elements = {
 
       if (oldState.transactions === state.transactions) return
       const container = $el[0]
-      const newElements = map(state.transactions, ({ transactionHtml }) => $(transactionHtml)[0])
+      const isFirstLoadTxs = oldState.transactionsLoading && !state.transactionsLoading
+      const oldTxKeys = new Set(map(oldState.transactions, 'transactionHash'))
+      const newElements = map(state.transactions, ({ transactionHtml, transactionHash }, i) => {
+        const el = $(transactionHtml)[0]
+        if (isFirstLoadTxs) {
+          el.classList.remove('new-item-enter')
+          el.classList.add('row-init')
+          el.style.animationDelay = `${i * 60}ms`
+        } else if (oldTxKeys.has(transactionHash)) {
+          el.classList.remove('new-item-enter')
+        }
+        return el
+      })
       listMorph(container, newElements, { key: 'dataset.identifierHash', horizontal: null })
     }
   },

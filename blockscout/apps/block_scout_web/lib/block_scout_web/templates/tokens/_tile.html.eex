@@ -1,31 +1,33 @@
-<tr data-identifier-hash="<%= @token.contract_address_hash %>">
-  <td class="stakes-td">
+<tr data-identifier-hash="<%= @token.contract_address_hash %>" class="hover:bg-white/[0.03] transition-colors group">
+  <td class="px-6 py-4 text-gray-500 font-medium">
       <!-- incremented number by order in the list -->
       <span class="color-lighten">
         <%= @index %>
       </span>
   </td>
-  <td class="token-icon">
+  <td class="px-3 py-4">
     <%= if Application.get_env(:block_scout_web, :display_token_icons) do %>
       <% chain_id_for_token_icon = Application.get_env(:block_scout_web, :chain_id) %>
       <% foreign_token_contract_address_hash = nil %>
       <% token_hash_for_token_icon = if foreign_token_contract_address_hash, do: foreign_token_contract_address_hash, else: Address.checksum(@token.contract_address_hash) %>
-      <%=
-        render BlockScoutWeb.TokensView,
-        "_token_icon.html",
-        chain_id: chain_id_for_token_icon,
-        address: token_hash_for_token_icon
-      %>
+      <div class="w-6 h-6 rounded-full overflow-hidden inline-flex items-center justify-center bg-black/30 border border-white/5">
+        <%=
+          render BlockScoutWeb.TokensView,
+          "_token_icon.html",
+          chain_id: chain_id_for_token_icon,
+          address: token_hash_for_token_icon
+        %>
+      </div>
     <% end %>
   </td>
-  <td class="stakes-td">
+  <td class="px-6 py-4 font-medium text-white max-w-[200px]">
     <% token = token_display_name(@token) %>
     <%= link(token,
       to: token_path(BlockScoutWeb.Endpoint, :show, @token.contract_address_hash),
       "data-test": "token_link",
-      class: "text-truncate") %>
+      class: "hover:text-amero-gold transition-colors block truncate w-full") %>
   </td>
-  <td class="stakes-td">
+  <td class="px-6 py-4 font-mono text-amero-gold hover:text-yellow-400 transition-colors">
     <%= render BlockScoutWeb.AddressView,
       "_link.html",
       address: @token.contract_address,
@@ -33,24 +35,25 @@
       use_custom_tooltip: false
     %>
   </td>
-  <td class="stakes-td">
+  <td class="px-6 py-4 text-gray-300">
     <%= if @token.circulating_market_cap do %>
       <span data-selector="circulating-market-cap-usd" data-usd-value="<%= @token.circulating_market_cap %>"></span>
     <% else %>
-      <span data-selector="circulating-market-cap-usd"><%= gettext "N/A" %></span>
+      <span data-selector="circulating-market-cap-usd" class="text-gray-500"><%= gettext "N/A" %></span>
     <% end %>
   </td>
-  <td class="stakes-td">
+  <td class="px-6 py-4 font-mono text-gray-300 text-sm">
     <%= if decimals?(@token) do %>
       <span data-test="token_supply"><%= format_according_to_decimals(@token.total_supply, @token.decimals) %></span>
     <% else %>
       <span data-test="token_supply"><%= format_integer_to_currency(@token.total_supply) %></span>
-    <% end %> <%= @token.symbol %>
+    <% end %> <span class="text-gray-500 ml-1"><%= @token.symbol %></span>
   </td>
-  <td class="stakes-td">
+  <td class="px-6 py-4 text-right sm:text-left text-gray-300 font-medium">
     <span class="mr-4">
       <span data-test="transaction_count">
         <%= @token.holder_count %>
+      </span>
     </span>
   </td>
 </tr>

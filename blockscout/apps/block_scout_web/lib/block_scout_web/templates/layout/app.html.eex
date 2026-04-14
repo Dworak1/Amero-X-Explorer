@@ -19,6 +19,15 @@
         <!-- app.css disabled for Tailwind UI -->
         <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
         <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% Elixir.BlockScoutWeb.TokensView -> %>
+          <!-- app.css disabled for Tailwind UI -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% Elixir.BlockScoutWeb.Tokens.TokenView -> %>
+          <!-- app.css disabled for Tailwind UI -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+
       <% _ -> %>
         <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
     <% end %>
@@ -143,6 +152,7 @@
         .light-theme .glass-panel { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .light-theme .glass-header { background: rgba(248, 249, 250, 0.85); border-bottom: 1px solid rgba(0,0,0,0.06); }
         .light-theme .text-white { color: #111827 !important; }
+        .light-theme .hover\:text-white:hover { color: #111827 !important; }
         .light-theme .text-gray-300 { color: #374151 !important; }
         .light-theme .text-gray-400, .light-theme .text-gray-500 { color: #4B5563 !important; }
         .light-theme .bg-white\/5 { background-color: rgba(0,0,0,0.03) !important; }
@@ -153,6 +163,8 @@
         .light-theme .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.08) !important; }
         .light-theme .bg-black\/20 { background-color: rgba(0,0,0,0.04) !important; }
         .light-theme .bg-black\/40 { background-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .dropdown-menu { background: rgba(255, 255, 255, 0.95) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important; }
+        .light-theme .dropdown-menu button:hover { background-color: rgba(0,0,0,0.04) !important; }
         .light-theme .search-container { background: rgba(255,255,255,1); border-color: rgba(0,0,0,0.1); }
         .light-theme input::placeholder { color: #6B7280 !important; }
         .light-theme .interactive-row { border-color: rgba(0,0,0,0.05); }
