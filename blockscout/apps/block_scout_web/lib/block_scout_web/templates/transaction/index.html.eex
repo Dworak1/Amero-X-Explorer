@@ -1,45 +1,89 @@
-<script>
-  function ShowLayoutContainer() {
+<main class="flex-grow container mx-auto px-4 pt-28 pb-12 max-w-[1400px] relative z-10" data-page="transaction-list">
+    
+    <div class="mb-6 pb-2">
+        <h1 class="text-2xl font-semibold text-white mb-2"><%= gettext "Validated Transactions" %></h1>
+    </div>
 
-    document.getElementsByClassName("layout-container")[0].style.visibility = "visible";
-  }
-  window.onload = ShowLayoutContainer()
-</script>
-<section class="container" data-page="transaction-list">
-  <%= render BlockScoutWeb.Advertisement.TextAdView, "index.html", conn: @conn %>
-  <div class="card">
-    <div class="card-body" data-async-listing="<%= @current_path %>">
-      <h1 class="card-title list-title-description"><%= gettext "Validated Transactions" %></h1>
-      <div class="list-top-pagination-container-wrapper">
-        <%= render BlockScoutWeb.CommonComponentsView, "_rap_pagination_container.html", position: "top", showing_limit: if(Chain.transactions_available_count() == Chain.limit_showing_transactions(), do: Chain.limit_showing_transactions(), else: nil) %>
-      </div>
-
-      <div data-selector="channel-batching-message" class="d-none">
-        <div data-selector="reload-button" class="alert alert-info">
-          <a href="#" class="alert-link"><span data-selector="channel-batching-count"></span> <%= gettext "More transactions have come in" %></a>
+    <!-- The 4 stats cards from transactions.html -->
+    <div class="glass-panel rounded-2xl p-0 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/10 hidden sm:grid">
+        
+        <div class="p-6 flex flex-col justify-center gap-3 hover:bg-white/[0.02] transition-colors">
+            <div class="text-xs text-gray-500 uppercase font-semibold tracking-wide">Transactions (24H)</div>
+            <div class="text-white text-xl font-medium flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-amero-gold/10 flex items-center justify-center text-amero-gold border border-amero-gold/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                </div>
+                -
+            </div>
         </div>
-      </div>
-      <%= render BlockScoutWeb.CommonComponentsView, "_channel_disconnected_message.html", text: gettext("Connection Lost, click to load newer transactions") %>
 
-      <button data-error-message class="alert alert-danger col-12 text-left" style="display: none;">
-        <span href="#" class="alert-link"><%= gettext("Something went wrong, click to reload.") %></span>
-      </button>
-
-      <div data-empty-response-message style="display: none;">
-        <div class="tile tile-muted text-center">
-          <span data-selector="empty-internal-transactions-list">
-            <%= gettext "There are no transactions." %>
-          </span>
+        <div class="p-6 flex flex-col justify-center gap-3 hover:bg-white/[0.02] transition-colors">
+            <div class="text-xs text-gray-500 uppercase font-semibold tracking-wide">Pending Transactions (Last 1H)</div>
+            <div class="text-white text-xl font-medium flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                -
+            </div>
         </div>
-      </div>
 
-      <div data-selector="transactions-list" data-items>
-        <%= render BlockScoutWeb.CommonComponentsView, "_tile-loader.html" %>
-      </div>
+        <div class="p-6 flex flex-col justify-center gap-3 hover:bg-white/[0.02] transition-colors">
+            <div class="text-xs text-gray-500 uppercase font-semibold tracking-wide">Total Transaction Fee (24H)</div>
+            <div class="text-white text-xl font-medium flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                -
+            </div>
+        </div>
 
-      <%= render BlockScoutWeb.CommonComponentsView, "_rap_pagination_container.html", position: "bottom" %>
+        <div class="p-6 flex flex-col justify-center gap-3 hover:bg-white/[0.02] transition-colors">
+            <div class="text-xs text-gray-500 uppercase font-semibold tracking-wide">Avg. Transaction Fee (24H)</div>
+            <div class="text-white text-xl font-medium flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gray-500/10 flex items-center justify-center text-gray-400 border border-gray-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                </div>
+                -
+            </div>
+        </div>
 
-  </div>
-  <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/validated-transactions.js") %>"></script>
-  <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/token-transfers-toggle.js") %>"></script>
-</section>
+    </div>
+
+    <%= render BlockScoutWeb.CommonComponentsView, "_channel_disconnected_message.html", text: gettext("Connection Lost, click to load newer transactions") %>
+    
+    <div data-selector="channel-batching-message" class="hidden mb-4">
+        <div data-selector="reload-button" class="border border-blue-500/50 bg-blue-500/10 text-blue-400 p-3 rounded-xl cursor-pointer hover:bg-blue-500/20 transition-colors text-center font-medium">
+            <span data-selector="channel-batching-count"></span> <%= gettext "More transactions have come in" %>
+        </div>
+    </div>
+    
+    <button data-error-message class="w-full text-center p-3 text-red-500 bg-red-500/10 rounded-xl mb-4" style="display: none;">
+        <span><%= gettext("Something went wrong, click to reload.") %></span>
+    </button>
+
+    <div class="glass-panel rounded-2xl overflow-hidden flex flex-col shadow-2xl" data-async-listing="<%= @current_path %>">
+        
+        <div class="p-4 border-b border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400 bg-white/[0.01]">
+            <div class="list-top-pagination-container-wrapper w-full">
+                <%= render BlockScoutWeb.CommonComponentsView, "_rap_pagination_container.html", position: "top", showing_limit: if(Chain.transactions_available_count() == Chain.limit_showing_transactions(), do: Chain.limit_showing_transactions(), else: nil) %>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto no-scrollbar w-full">
+            <div data-empty-response-message style="display: none;" class="p-4 text-center text-gray-500">
+                <span data-selector="empty-internal-transactions-list"><%= gettext "There are no transactions." %></span>
+            </div>
+            
+            <div class="flex flex-col w-full divide-y divide-white/5" data-selector="transactions-list" data-items>
+                <%= render BlockScoutWeb.CommonComponentsView, "_tile-loader.html" %>
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-white/5">
+            <%= render BlockScoutWeb.CommonComponentsView, "_rap_pagination_container.html", position: "bottom" %>
+        </div>
+
+    </div>
+    <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/validated-transactions.js") %>"></script>
+    <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/token-transfers-toggle.js") %>"></script>
+</main>

@@ -1,17 +1,7 @@
-<footer class="footer" style="background-color: #0A0A0A; border-top: 1px solid rgba(226, 182, 73, 0.2); padding: 20px 0; margin-top: 20px;">
-  <div class="container-fluid px-4 px-xl-5">
-    <div class="row align-items-center">
-      <div class="col-12 d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-          <i class="fa fa-cubes" style="color: #E2B649; font-size: 24px; margin-right: 10px;"></i>
-          <span style="color: #e8e8e8; font-size: 1.2rem; font-weight: 600; margin-right: 20px;">Powered by Amero X</span>
-          <button class="btn btn-dark btn-sm mr-2" style="background-color: #111111; border-color: rgba(226, 182, 73, 0.3);"><i class="fa fa-twitter"></i></button>
-          <button class="btn btn-dark btn-sm" style="background-color: #111111; border-color: rgba(226, 182, 73, 0.3);"><i class="fa fa-telegram"></i></button>
-        </div>
-        <div>
-          <a href="#" style="color: #A0A0A0; font-size: 0.9rem;"><i class="fa fa-arrow-up"></i> Back to Top</a>
-        </div>
-      </div>
+<footer class="mt-auto py-6 border-t border-white/5 bg-[#050505] flex flex-col items-center justify-center relative z-10" style="margin-top: auto;">
+    <div class="flex items-center gap-2 mb-2 hover:opacity-80 transition-opacity cursor-pointer">
+        <div class="w-5 h-5 rounded bg-amero-gold flex items-center justify-center text-black font-bold text-[10px]">X</div>
+        <span class="text-white text-sm font-semibold">Amero X</span>
     </div>
-  </div>
+    <p class="text-xs text-gray-500 font-medium">Powered by Blockscout & Amero X Team</p>
 </footer>

@@ -149,13 +149,19 @@ $(document).ready(() => {
       analytics.trackEvent(eventName, eventProperties)
     })
   })
-  observer.observe($('#autoComplete_list_1')[0], {
-    attributeFilter: ['hidden'],
-    childList: true
-  })
-  observer.observe($('#autoComplete_list_2')[0], {
-    attributeFilter: ['hidden']
-  })
+  const $autoList1 = $('#autoComplete_list_1')[0]
+  const $autoList2 = $('#autoComplete_list_2')[0]
+  if ($autoList1) {
+    observer.observe($autoList1, {
+      attributeFilter: ['hidden'],
+      childList: true
+    })
+  }
+  if ($autoList2) {
+    observer.observe($autoList2, {
+      attributeFilter: ['hidden']
+    })
+  }
 })
 
 $(document).click(function (event) {

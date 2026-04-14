@@ -37,7 +37,7 @@ export const initialState = {
 
 export const reducer = withMissingBlocks(baseReducer)
 
-function baseReducer (state = initialState, action) {
+function baseReducer(state = initialState, action) {
   switch (action.type) {
     case 'ELEMENTS_LOAD': {
       return Object.assign({}, state, omit(action, 'type'))
@@ -153,7 +153,7 @@ function baseReducer (state = initialState, action) {
   }
 }
 
-function withMissingBlocks (reducer) {
+function withMissingBlocks(reducer) {
   return (...args) => {
     const result = reducer(...args)
 
@@ -175,11 +175,11 @@ function withMissingBlocks (reducer) {
 let chart
 const elements = {
   '[data-chart="historyChart"]': {
-    load () {
+    load() {
       // @ts-ignore
       chart = window.dashboardChart
     },
-    render (_$el, state, oldState) {
+    render(_$el, state, oldState) {
       if (!chart || (oldState.availableSupply === state.availableSupply && oldState.marketHistoryData === state.marketHistoryData) || !state.availableSupply) return
 
       chart.updateMarketHistory(state.availableSupply, state.marketHistoryData)
@@ -190,111 +190,127 @@ const elements = {
     }
   },
   '[data-selector="transaction-count"]': {
-    load ($el) {
+    load($el) {
       return { transactionCount: numeral($el.text()).value() }
     },
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.transactionCount === state.transactionCount) return
       $el.empty().append(numeral(state.transactionCount).format())
     }
   },
   '[data-selector="total-gas-usage"]': {
-    load ($el) {
+    load($el) {
       return { totalGasUsageCount: numeral($el.text()).value() }
     },
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.totalGasUsageCount === state.totalGasUsageCount) return
       $el.empty().append(numeral(state.totalGasUsageCount).format())
     }
   },
   '[data-selector="block-count"]': {
-    load ($el) {
+    load($el) {
       return { blockCount: numeral($el.text()).value() }
     },
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.blockCount === state.blockCount) return
       $el.empty().append(numeral(state.blockCount).format())
     }
   },
   '[data-selector="address-count"]': {
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.addressCount === state.addressCount) return
       $el.empty().append(state.addressCount)
     }
   },
   '[data-selector="average-block-time"]': {
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.averageBlockTime === state.averageBlockTime) return
       $el.empty().append(state.averageBlockTime)
     }
   },
   '[data-selector="market-cap"]': {
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (oldState.usdMarketCap === state.usdMarketCap) return
       $el.empty().append(formatUsdValue(state.usdMarketCap))
     }
   },
   '[data-selector="tx_per_day"]': {
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
       if (!(JSON.stringify(oldState.transactionStats) === JSON.stringify(state.transactionStats))) {
         $el.empty().append(numeral(state.transactionStats[0].number_of_transactions).format('0,0'))
       }
     }
   },
   '[data-selector="chain-block-list"]': {
-    load ($el) {
+    load($el) {
+      // The data-url is on the parent .block-scroller wrapper
       return {
-        blocksPath: $el[0].dataset.url
+        blocksPath: $el.closest('.block-scroller')[0].dataset.url
       }
     },
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
+      // Handle error/loading messages (siblings in the .block-scroller wrapper)
+      const $errorMsg = $el.closest('.block-scroller').find('[data-selector="error-message"]')
+      const $loadMsg = $el.closest('.block-scroller').find('[data-selector="loading-message"]')
+      if (state.blocksError) {
+        $errorMsg.show()
+      } else {
+        $errorMsg.hide()
+      }
+      showLoader(state.blocksLoading, $loadMsg)
+
       if (oldState.blocks === state.blocks) return
 
       const container = $el[0]
-
       if (state.blocksLoading === false) {
-        const blocks = map(state.blocks, ({ chainBlockHtml }) => $(chainBlockHtml)[0])
+        const isFirstLoadBlocks = oldState.blocksLoading && !state.blocksLoading
+        const oldBlockKeys = new Set(map(oldState.blocks, 'blockNumber'))
+        const blocks = map(state.blocks, ({ chainBlockHtml, blockNumber }, i) => {
+          const el = $(chainBlockHtml)[0]
+          if (isFirstLoadBlocks) {
+            el.classList.remove('new-item-enter')
+            el.classList.add('row-init')
+            el.style.animationDelay = `${i * 60}ms`
+          } else if (oldBlockKeys.has(blockNumber)) {
+            el.classList.remove('new-item-enter')
+          }
+          return el
+        })
         listMorph(container, blocks, { key: 'dataset.blockNumber', horizontal: true })
       }
     }
   },
-  '[data-selector="chain-block-list"] [data-selector="error-message"]': {
-    render ($el, state, _oldState) {
-      if (state.blocksError) {
-        $el.show()
-      } else {
-        $el.hide()
-      }
-    }
-  },
-  '[data-selector="chain-block-list"] [data-selector="loading-message"]': {
-    render ($el, state, _oldState) {
-      showLoader(state.blocksLoading, $el)
-    }
-  },
-  '[data-selector="transactions-list"] [data-selector="error-message"]': {
-    render ($el, state, _oldState) {
-      $el.toggle(state.transactionsError)
-    }
-  },
-  '[data-selector="transactions-list"] [data-selector="loading-message"]': {
-    render ($el, state, _oldState) {
-      showLoader(state.transactionsLoading, $el)
-    }
-  },
   '[data-selector="transactions-list"]': {
-    load ($el) {
+    load($el) {
       return { transactionsPath: $el[0].dataset.transactionsPath }
     },
-    render ($el, state, oldState) {
+    render($el, state, oldState) {
+      // Toggle error/loading siblings
+      const $errorMsg = $el.siblings('[data-selector="error-message"]')
+      const $loadMsg = $el.siblings('[data-selector="loading-message"]')
+      $errorMsg.toggle(state.transactionsError)
+      showLoader(state.transactionsLoading, $loadMsg)
+
       if (oldState.transactions === state.transactions) return
       const container = $el[0]
-      const newElements = map(state.transactions, ({ transactionHtml }) => $(transactionHtml)[0])
+      const isFirstLoadTxs = oldState.transactionsLoading && !state.transactionsLoading
+      const oldTxKeys = new Set(map(oldState.transactions, 'transactionHash'))
+      const newElements = map(state.transactions, ({ transactionHtml, transactionHash }, i) => {
+        const el = $(transactionHtml)[0]
+        if (isFirstLoadTxs) {
+          el.classList.remove('new-item-enter')
+          el.classList.add('row-init')
+          el.style.animationDelay = `${i * 60}ms`
+        } else if (oldTxKeys.has(transactionHash)) {
+          el.classList.remove('new-item-enter')
+        }
+        return el
+      })
       listMorph(container, newElements, { key: 'dataset.identifierHash', horizontal: null })
     }
   },
   '[data-selector="channel-batching-count"]': {
-    render ($el, state, _oldState) {
+    render($el, state, _oldState) {
       const $channelBatching = $('[data-selector="channel-batching-message"]')
       if (!state.transactionsBatch.length) return $channelBatching.hide()
       $channelBatching.show()
@@ -364,7 +380,7 @@ if ($chainDetailsPage.length) {
   })
 }
 
-function loadTransactions (store) {
+function loadTransactions(store) {
   const path = store.getState().transactionsPath
   store.dispatch({ type: 'START_TRANSACTIONS_FETCH' })
   $.getJSON(path)
@@ -373,11 +389,11 @@ function loadTransactions (store) {
     .always(() => store.dispatch({ type: 'FINISH_TRANSACTIONS_FETCH' }))
 }
 
-function bindTransactionErrorMessage (store) {
+function bindTransactionErrorMessage(store) {
   $('[data-selector="transactions-list"] [data-selector="error-message"]').on('click', _event => loadTransactions(store))
 }
 
-export function placeHolderBlock (blockNumber) {
+export function placeHolderBlock(blockNumber) {
   return `
     <div
       class="col-lg-3 d-flex fade-up-blocks-chain"
@@ -394,16 +410,16 @@ export function placeHolderBlock (blockNumber) {
         <div>
           <span class="tile-title pr-0 pl-0">${blockNumber}</span>
           <div class="tile-transactions">${
-            // @ts-ignore
-            window.localized['Block Processing']
-          }</div>
+    // @ts-ignore
+    window.localized['Block Processing']
+    }</div>
         </div>
       </div>
     </div>
   `
 }
 
-function loadBlocks (store) {
+function loadBlocks(store) {
   const url = store.getState().blocksPath
 
   store.dispatch({ type: 'START_BLOCKS_FETCH' })
@@ -416,7 +432,7 @@ function loadBlocks (store) {
     .always(() => store.dispatch({ type: 'BLOCKS_FINISH_REQUEST' }))
 }
 
-function bindBlockErrorMessage (store) {
+function bindBlockErrorMessage(store) {
   $('[data-selector="chain-block-list"] [data-selector="error-message"]').on('click', _event => loadBlocks(store))
 }
 

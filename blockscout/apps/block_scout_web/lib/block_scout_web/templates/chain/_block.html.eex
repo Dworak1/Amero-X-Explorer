@@ -1,48 +1,43 @@
-<div class="col-12 fade-up-blocks-chain px-0" data-selector="chain-block" data-block-number="<%= @block.number %>">
-  <div class="d-flex flex-row align-items-center" style="padding: 15px 10px; border-bottom: 1px solid rgba(226, 182, 73, 0.15);">
+<div class="col-12 px-0 interactive-row flex items-center justify-between p-4 new-item-enter" data-selector="chain-block" data-block-number="<%= @block.number %>">
     
-    <!-- Left Icon -->
-    <div class="mr-3 d-none d-sm-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background-color: rgba(226, 182, 73, 0.05); border-radius: 8px;">
-      <i class="fa fa-cube" style="color: #E2B649; font-size: 1.2rem;"></i>
-    </div>
-    
-    <!-- Left Details -->
-    <div class="d-flex flex-column justify-content-center pr-3" style="width: 25%; min-width: 0;">
-      <%= link(
-        @block,
-        to: block_path(BlockScoutWeb.Endpoint, :show, @block),
-        "data-selector": "block-number",
-        style: "font-weight: 600; color: #E2B649; font-size: 1.05rem;"
-      ) %>
-      <div style="font-size: 0.8rem; color: #A0A0A0; margin-top: 4px;" data-from-now="<%= @block.timestamp %>"></div>
-    </div>
-    
-    <!-- Middle Details -->
-    <div class="d-flex flex-column justify-content-center flex-grow-1 text-truncate" style="min-width: 0;">
-      <%= if !Application.get_env(:block_scout_web, :hide_block_miner) do %>
-        <div style="font-size: 0.9rem; color: #e8e8e8;" class="text-truncate">
-          <span style="color: #A0A0A0;"><%= if is_nil(BlockScoutWeb.BlockView.proposer_address(@block.number)), do: gettext("Miner"), else: gettext("Proposed by") %></span>
-          <%= render BlockScoutWeb.AddressView,
-            "_link.html",
-            address: BlockScoutWeb.BlockView.proposer_address(@block.number) || @block.miner,
-            contract: false,
-            use_custom_tooltip: false,
-            custom_classes_tooltip: ["miner-address-tooltip"] %>
+    <div class="flex items-center gap-4 w-1/3 min-w-0">
+        <div class="icon-wrap w-10 h-10 rounded-lg bg-white/5 border border-white/5 hidden sm:flex items-center justify-center text-gray-400 shrink-0">
+            <span class="text-[11px] font-semibold tracking-tight">Bk</span>
         </div>
-      <% end %>
-      <div style="font-size: 0.85rem; color: #E2B649; margin-top: 4px;" class="text-truncate">
-         <span style="font-weight: 500;"><%= Enum.count(@block.transactions) %> txns</span>
-      </div>
-    </div>
-    
-    <!-- Right Detail -->
-    <div class="ml-4 text-right d-none d-md-block">
-      <%= if BlockScoutWeb.BlockView.show_reward?(@block.rewards) do %>
-        <div class="badge" style="background-color: transparent; color: #E8E8E8; border: 1px solid rgba(226, 182, 73, 0.2); padding: 5px 8px; font-weight: 500; border-radius: 6px; font-size: 0.85rem;">
-          <%= BlockScoutWeb.BlockView.combined_rewards_value(@block) %>
+        <div class="min-w-0">
+            <%= link(
+              @block,
+              to: block_path(BlockScoutWeb.Endpoint, :show, @block),
+              "data-selector": "block-number",
+              class: "text-amero-gold font-medium cursor-pointer hover:underline truncate block"
+            ) %>
+            <div class="text-xs text-gray-500 mt-0.5" data-from-now="<%= @block.timestamp %>"></div>
         </div>
-      <% end %>
     </div>
     
-  </div>
+    <div class="flex flex-col items-end sm:items-start sm:w-1/3 min-w-0">
+        <%= if !Application.get_env(:block_scout_web, :hide_block_miner) do %>
+            <div class="text-sm text-gray-300 truncate w-full">
+                <span class="text-gray-500"><%= if is_nil(BlockScoutWeb.BlockView.proposer_address(@block.number)), do: gettext("Fee Recipient"), else: gettext("Proposed by") %></span>
+                <%= render BlockScoutWeb.AddressView,
+                  "_link.html",
+                  address: BlockScoutWeb.BlockView.proposer_address(@block.number) || @block.miner,
+                  contract: false,
+                  use_custom_tooltip: false,
+                  custom_classes_tooltip: ["miner-address-tooltip"] %>
+            </div>
+        <% end %>
+        <div class="text-xs text-gray-500 mt-0.5 truncate w-full">
+            <a href="<%= transaction_path(BlockScoutWeb.Endpoint, :index, block_number: @block.number) %>" class="hover:text-amero-gold transition-colors"><%= Enum.count(@block.transactions) %> txns</a>
+        </div>
+    </div>
+    
+    <div class="hidden sm:block text-right">
+        <%= if BlockScoutWeb.BlockView.show_reward?(@block.rewards) do %>
+            <div class="value-badge text-xs font-medium px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/10 whitespace-nowrap">
+                <%= BlockScoutWeb.BlockView.combined_rewards_value(@block) %>
+            </div>
+        <% end %>
+    </div>
+    
 </div>

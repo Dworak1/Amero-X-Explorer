@@ -7,14 +7,27 @@
 
     <%= case Phoenix.Controller.view_module(@conn) do %>
       <% Elixir.BlockScoutWeb.ChainView -> %>
-        <link rel="stylesheet" href="<%= static_path(@conn, "/css/main-page.css") %>">
+        <!-- main-page.css disabled for Tailwind UI -->
         <link rel="preload" href="<%= static_path(@conn, "/js/chain.js") %>" as="script">
         <link rel="preload" href="<%= static_path(@conn, "/js/chart-loader.js") %>" as="script">
         <link rel="preload" href="<%= static_path(@conn, "/js/token-transfers-toggle.js") %>" as="script">
       <% Elixir.BlockScoutWeb.TransactionView -> %>
-        <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+        <!-- app.css disabled for Tailwind UI -->
         <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
         <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+      <% Elixir.BlockScoutWeb.BlockView -> %>
+        <!-- app.css disabled for Tailwind UI -->
+        <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+        <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% Elixir.BlockScoutWeb.TokensView -> %>
+          <!-- app.css disabled for Tailwind UI -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% Elixir.BlockScoutWeb.Tokens.TokenView -> %>
+          <!-- app.css disabled for Tailwind UI -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+
       <% _ -> %>
         <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
     <% end %>
@@ -39,6 +52,135 @@
 
     <%= render_existing(Phoenix.Controller.view_module(@conn), "_metatags.html", assigns) || render("_default_title.html") %>
 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amero: { gold: '#E2B649', dark: '#050505', panel: '#111111', border: 'rgba(255, 255, 255, 0.08)' }
+                    },
+                    fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'], mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body, body.dark-mode, body.dark-mode .layout-container { background-color: #050505 !important; color: #EDEDED; }
+
+        /* Ambient Glow & Circuit Layer */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(226, 182, 73, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(226, 182, 73, 0.03) 0%, transparent 50%);
+            z-index: -2; pointer-events: none;
+        }
+        /* Circuit SVG Background Layer */
+        .circuit-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 750px;
+            background-image: url('https://amerox.io/assets/circuit.svg');
+            background-size: cover; background-position: center top; background-repeat: no-repeat;
+            opacity: 0.15; z-index: -1; pointer-events: none;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08)); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        .glass-header {
+            background: rgba(5, 5, 5, 0.8); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-container {
+            background: rgba(25, 25, 25, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;
+        }
+        .search-container:focus-within {
+            background: rgba(30, 30, 30, 1); border-color: #E2B649; box-shadow: 0 0 0 3px rgba(226, 182, 73, 0.15);
+        }
+
+        @keyframes insertRow {
+            0% { opacity: 0; transform: translateY(-18px) scaleY(0.85); background: rgba(226, 182, 73, 0.18); box-shadow: 0 0 0 0 rgba(226, 182, 73, 0); }
+            6% { opacity: 1; transform: translateY(0) scaleY(1); background: rgba(226, 182, 73, 0.12); box-shadow: inset 0 1px 0 rgba(226, 182, 73, 0.3), 0 2px 16px rgba(226, 182, 73, 0.08); }
+            18% { background: rgba(226, 182, 73, 0.08); box-shadow: inset 0 1px 0 rgba(226, 182, 73, 0.15), 0 2px 8px rgba(226, 182, 73, 0.04); }
+            55% { background: rgba(226, 182, 73, 0.03); box-shadow: none; }
+            100% { background: transparent; box-shadow: none; }
+        }
+        @keyframes scanLine { 0% { transform: translateX(-100%); opacity: 0.7; } 100% { transform: translateX(200%); opacity: 0; } }
+        .new-item-enter { animation: insertRow 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; transform-origin: top center; position: relative; overflow: hidden; }
+        .new-item-enter::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(226, 182, 73, 0.12) 40%, rgba(226, 182, 73, 0.22) 50%, rgba(226, 182, 73, 0.12) 60%, transparent 100%);
+            animation: scanLine 0.85s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards; pointer-events: none;
+        }
+        @keyframes accentBar { 0% { opacity: 1; height: 100%; background: #E2B649; } 40% { opacity: 0.6; } 100% { opacity: 0; height: 100%; } }
+        .new-item-enter::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; background: #E2B649; animation: accentBar 2.0s cubic-bezier(0.22, 1, 0.36, 1) forwards; pointer-events: none; }
+        @keyframes fadeInRow { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .row-init { animation: fadeInRow 0.45s ease both; }
+        .interactive-row { transition: background-color 0.25s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+        .interactive-row:last-child { border-bottom: none; }
+        .interactive-row:hover { background: rgba(255, 255, 255, 0.03); }
+        @keyframes livePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); opacity: 1; } 50% { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); opacity: 0.7; } }
+        .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: livePulse 2.2s ease-in-out infinite; display: inline-block; flex-shrink: 0; }
+        @keyframes badgePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+        .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #22c55e; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); padding: 2px 7px; border-radius: 99px; }
+        .live-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; animation: badgePulse 1.8s ease-in-out infinite; }
+        @keyframes panelReveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .panel-reveal { animation: panelReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .panel-reveal-delay-1 { animation-delay: 0.08s; }
+        .panel-reveal-delay-2 { animation-delay: 0.16s; }
+        .panel-reveal-delay-3 { animation-delay: 0.24s; }
+        .icon-wrap { transition: background 0.25s, box-shadow 0.25s; }
+        .interactive-row:hover .icon-wrap { background: rgba(226, 182, 73, 0.08); box-shadow: 0 0 0 1px rgba(226, 182, 73, 0.15); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(226,182,73,0.5); }
+        .value-badge { transition: background 0.2s, border-color 0.2s, color 0.2s; }
+        .interactive-row:hover .value-badge { background: rgba(226, 182, 73, 0.08); border-color: rgba(226, 182, 73, 0.25); color: #E2B649; }
+        
+        /* Light Theme Overrides */
+        .light-theme { background-color: #F8F9FA !important; color: #111827 !important; }
+        .light-theme .ambient-bg { background-image: radial-gradient(circle at 50% 0%, rgba(226, 182, 73, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(226, 182, 73, 0.1) 0%, transparent 50%); }
+        .light-theme .circuit-bg { filter: invert(1); opacity: 0.04; }
+        .light-theme .glass-panel { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .light-theme .glass-header { background: rgba(248, 249, 250, 0.85); border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .light-theme .text-white { color: #111827 !important; }
+        .light-theme .hover\:text-white:hover { color: #111827 !important; }
+        .light-theme .text-gray-300 { color: #374151 !important; }
+        .light-theme .text-gray-400, .light-theme .text-gray-500 { color: #4B5563 !important; }
+        .light-theme .bg-white\/5 { background-color: rgba(0,0,0,0.03) !important; }
+        .light-theme .bg-white\/10 { background-color: rgba(0,0,0,0.06) !important; }
+        .light-theme .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .border-white\/5 { border-color: rgba(0,0,0,0.06) !important; }
+        .light-theme .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+        .light-theme .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .bg-black\/20 { background-color: rgba(0,0,0,0.04) !important; }
+        .light-theme .bg-black\/40 { background-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .dropdown-menu { background: rgba(255, 255, 255, 0.95) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important; }
+        .light-theme .dropdown-menu button:hover { background-color: rgba(0,0,0,0.04) !important; }
+        .light-theme .search-container { background: rgba(255,255,255,1); border-color: rgba(0,0,0,0.1); }
+        .light-theme input::placeholder { color: #6B7280 !important; }
+        .light-theme .interactive-row { border-color: rgba(0,0,0,0.05); }
+        .light-theme .interactive-row:hover, .light-theme .hover\:bg-white\/\[0\.02\]:hover { background: rgba(0,0,0,0.02) !important; }
+        .light-theme .icon-wrap, .light-theme .value-badge, .light-theme .method-badge { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); color: #374151; }
+        .light-theme footer, .light-theme .bg-\[\#050505\] { background-color: #F8F9FA !important; border-top-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .gas-bar-bg { background: rgba(0,0,0,0.1) !important; }
+        .table-row { transition: background-color 0.2s ease; }
+        .table-row:hover { background-color: rgba(255, 255, 255, 0.03); }
+        .method-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; color: #D1D5DB; white-space: nowrap;}
+        .gas-bar-bg { background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; height: 4px; width: 100%; margin-top: 4px;}
+        .gas-bar-fill { background: #E2B649; height: 100%; }
+        
+        .layout-container { display: flex; flex-direction: column; min-height: 100vh; }
+    </style>
+
     <script defer data-cfasync="false">
       window.localized = {
         'Blocks Indexed': '<%= gettext("Blocks Indexed") %>',
@@ -53,19 +195,21 @@
     </script>
   </head>
 
-  <body>
-    <div class="layout-container">
+  <body class="min-h-screen flex flex-col font-sans selection:bg-amero-gold selection:text-black relative">
+    <div class="ambient-bg"></div>
+    <div class="circuit-bg"></div>
+    <div class="layout-container flex-grow flex flex-col">
       <!-- Block for passing backend runtime env variables to frontend -->
-      <div id="permanent-dark-mode" class="d-none" ><%= Application.get_env(:block_scout_web, :permanent_dark_mode_enabled) %></div>
-      <div id="permanent-light-mode" class="d-none" ><%= Application.get_env(:block_scout_web, :permanent_light_mode_enabled) %></div>
-      <div id="indexer-first-block" class="d-none" ><%= Application.get_env(:indexer, :first_block) %></div>
-      <input id="js-chain-id" class="d-none" value="<%= Application.get_env(:block_scout_web, :chain_id) %>" />
-      <input id="js-json-rpc" class="d-none" value="<%= Application.get_env(:block_scout_web, :json_rpc) %>" />
-      <input id="js-coin-name" class="d-none" value="<%= Application.get_env(:explorer, :coin_name) %>" />
-      <input id="js-re-captcha-client-key" class="d-none" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:v2_client_key] %>" />
-      <input id="js-re-captcha-v3-client-key" class="d-none" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:v3_client_key] %>" />
-      <input id="js-re-captcha-disabled" class="d-none" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:is_disabled] %>" />
-      <input id="js-network-path" class="d-none" value="<%= Application.get_env(:block_scout_web, BlockScoutWeb.Endpoint)[:url][:path] %>" />
+      <div id="permanent-dark-mode" class="d-none hidden" ><%= Application.get_env(:block_scout_web, :permanent_dark_mode_enabled) %></div>
+      <div id="permanent-light-mode" class="d-none hidden" ><%= Application.get_env(:block_scout_web, :permanent_light_mode_enabled) %></div>
+      <div id="indexer-first-block" class="d-none hidden" ><%= Application.get_env(:indexer, :first_block) %></div>
+      <input id="js-chain-id" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, :chain_id) %>" />
+      <input id="js-json-rpc" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, :json_rpc) %>" />
+      <input id="js-coin-name" class="d-none hidden" value="<%= Application.get_env(:explorer, :coin_name) %>" />
+      <input id="js-re-captcha-client-key" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:v2_client_key] %>" />
+      <input id="js-re-captcha-v3-client-key" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:v3_client_key] %>" />
+      <input id="js-re-captcha-disabled" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, :recaptcha)[:is_disabled] %>" />
+      <input id="js-network-path" class="d-none hidden" value="<%= Application.get_env(:block_scout_web, BlockScoutWeb.Endpoint)[:url][:path] %>" />
       <!-- -->
       <!-- <div class="alert alert-warning text-center mb-0 p-3">
           <%= raw("The new Blockscout UI is now open source! Learn how to <a href='https://docs.blockscout.com/for-developers/deployment/frontend-migration' target='_blank'>deploy it here</a>") %>
@@ -175,5 +319,35 @@
       <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/dropzone.js") %>"></script>
     <% end %>
     <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/app_extra.js") %>"></script>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if(themeBtn) {
+                const themeIcon = document.getElementById('theme-icon');
+                
+                function updateThemeIcon(isLight) {
+                    if (isLight) {
+                        themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+                    } else {
+                        themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+                    }
+                }
+                
+                updateThemeIcon(document.body.classList.contains('light-theme'));
+                
+                themeBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('light-theme');
+                    const isLight = document.body.classList.contains('light-theme');
+                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                    updateThemeIcon(isLight);
+                    window.dispatchEvent(new Event('theme-changed'));
+                });
+            }
+        });
+    </script>
   </body>
 </html>

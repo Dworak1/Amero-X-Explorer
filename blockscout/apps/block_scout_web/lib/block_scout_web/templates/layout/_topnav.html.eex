@@ -1,267 +1,54 @@
-<% apps_menu = Application.get_env(:block_scout_web, :apps_menu) %>
-<% other_nets = dropdown_other_nets() %>
-<% test_nets = test_nets(dropdown_nets()) %>
-<% main_nets = dropdown_head_main_nets() %>
-<nav class="navbar navbar-dark navbar-expand-lg navbar-primary" data-selector="navbar" id="top-navbar">
-  <div class="container-fluid px-4 px-xl-5 navbar-container">
-    <%= link to: webapp_url(@conn), class: "navbar-brand", "data-test": "header_logo" do %>
-      <%= if logo() do %>
-        <img class="navbar-logo" src="<%= static_path(@conn, logo()) %>" style="height: 48px !important; width: auto !important; max-width: none !important; margin-right: 12px; filter: none !important; border-radius: 0 !important; background: transparent !important;" />
-      <% end %>
-      <span class="logo-text" style="color: #E2B649 !important; font-weight: 700 !important; text-transform: uppercase !important;"> Amero X Scan </span>
-      <%= if Application.get_env(:block_scout_web, BlockScoutWeb.Chain)[:enable_testnet_label] do %>
-        <%= render BlockScoutWeb.FormView, "_tag.html", text: Application.get_env(:block_scout_web, BlockScoutWeb.Chain)[:testnet_label_text], additional_classes: ["testnet-label", "ml-2"] %>
-      <% end %>
-    <% end %>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="<%= gettext("Toggle navigation") %>">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <%!-- =====================================================
-            Blockchain, Tokens, and APIs nav items are HIDDEN.
-            Code is preserved below inside `if false` for future use.
-            To re-enable, remove the `if false do` / `end` wrapper.
-            ===================================================== --%>
-        
-
-
-
-        <%= if false do %>
-          <%= if Application.get_env(:block_scout_web, BlockScoutWeb.Routers.WebRouter)[:enabled] do %>
-            <li class="nav-item dropdown">
-              <a class="nav-link topnav-nav-link dropdown-toggle" href="#" id="navbarBlocksDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="nav-link-icon">
-                  <%= render BlockScoutWeb.IconsView, "_blockchain_icon.html" %>
-                </span>
-                <%= gettext("Blockchain") %>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarBlockchainDropdown">
-                <div class="nav-submenu">
-                  <span>
-                    <%= gettext("Blocks") %>
-                  </span>
-                </div>
-                <%= link(
-                      gettext("Blocks"),
-                      to: blocks_path(@conn, :index),
-                      class: "dropdown-item #{tab_status("blocks", @conn.request_path)}")%>
-                <%= link(gettext("Uncles"),
-                      to: uncle_path(@conn, :uncle),
-                      class: "dropdown-item #{tab_status("uncles", @conn.request_path)}")%>
-                <%= link(gettext("Forked Blocks (Reorgs)"),
-                      to: reorg_path(@conn, :reorg),
-                      class: "border-bottom dropdown-item #{tab_status("reorgs", @conn.request_path)}")%>
-                <div class="nav-submenu">
-                  <span>
-                    <%= gettext("Transactions") %>
-                  </span>
-                </div>
-                <% json_rpc_named_arguments = Application.fetch_env!(:indexer, :json_rpc_named_arguments) %>
-                <% variant = Keyword.fetch!(json_rpc_named_arguments, :variant) %>
-                <% show_withdrawals? = not Application.get_env(:indexer, Indexer.Fetcher.Withdrawal.Supervisor)[:disabled?] %>
-                <%= link(
-                      gettext("Validated"),
-                      to: transaction_path(@conn, :index),
-                      class: "#{if variant == EthereumJSONRPC.Besu, do: "border-bottom", else: ""} dropdown-item #{tab_status("txs", @conn.request_path)}"
-                    ) %>
-                <%= if variant !== EthereumJSONRPC.Besu do %>
-                  <%= link(
-                        gettext("Pending"),
-                        class: "border-bottom dropdown-item #{tab_status("pending-transactions", @conn.request_path)}",
-                        "data-test": "pending_transactions_link",
-                        to: pending_transaction_path(@conn, :index)
-                      ) %>
-                <% end %>
-                <%= link(gettext("Verified contracts"),
-                      to: verified_contracts_path(@conn, :index),
-                      class: "dropdown-item border-bottom #{tab_status("reorgs", @conn.request_path)}")%>
-                <%= if show_withdrawals? do %>
-                  <%= link(gettext("Withdrawals"),
-                      to: withdrawal_path(@conn, :index),
-                      class: "dropdown-item #{tab_status("reorgs", @conn.request_path)}")%>
-                <% end %>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a href="#" role="button" id="navbarTokensDropdown" class="nav-link topnav-nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="nav-link-icon">
-                  <%= render BlockScoutWeb.IconsView, "_tokens_icon.html" %>
-                </span>
-                <%= gettext("Tokens") %>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarTransactionsDropdown">
-                <%= link(
-                      gettext("All"),
-                      class: "dropdown-item #{tab_status("tokens", @conn.request_path)}",
-                      to: tokens_path(@conn, :index)
-                    ) %>
-                <%= link(
-                      Explorer.coin_name(),
-                      class: "dropdown-item #{tab_status("accounts", @conn.request_path)}",
-                      to: address_path(@conn, :index)
-                    ) %>
-              </div>
-            </li>
-          <% end %>
-          <%= if Application.get_env(:block_scout_web, BlockScoutWeb.Routers.ApiRouter)[:reading_enabled] || Application.get_env(:block_scout_web, :api_url) do %>
-            <li class="nav-item dropdown">
-              <a href="#" role="button" id="navbarAPIsDropdown" class="nav-link topnav-nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="nav-link-icon">
-                  <%= render BlockScoutWeb.IconsView, "_api_icon.html" %>
-                </span>
-                <%= gettext("APIs") %>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarTransactionsDropdown">
-                <%= link(
-                      gettext("GraphQL"),
-                      class: "dropdown-item #{tab_status("graphiql", @conn.request_path)}",
-                      to: api_url() <> "/graphiql"
-                    ) %>
-                <%= link(
-                      gettext("RPC"),
-                      class: "dropdown-item #{tab_status("api-docs", @conn.request_path)}",
-                      to: api_url() <> api_docs_path(@conn, :index)
-                    ) %>
-                <%= link(
-                      gettext("Eth RPC"),
-                      class: "dropdown-item #{tab_status("eth-rpc-api-docs", @conn.request_path)}",
-                      to: api_url() <> api_docs_path(@conn, :eth_rpc)
-                    ) %>
-              </div>
-            </li>
-          <% end %>
-        <% end %>
-
-        <%= if apps_menu == true do %>
-          <li class="nav-item dropdown">
-            <a href="#" role="button" id="navbarAppsDropdown" class="nav-link topnav-nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="nav-link-icon">
-                <%= render BlockScoutWeb.IconsView, "_apps_icon.html" %>
-              </span>
-              <%= if apps_menu == true do %>
-                <%= gettext("Apps") %>
-              <% else %>
-                <%= gettext("Stakes") %>
-              <% end %>
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarAppsDropdown">
-              <%= if apps_menu == true do %>
-                <%= for %{url: url, title: title} = app <- apps_list() do %>
-                    <%= if Map.has_key?(app, :embedded?) && app.embedded? do %>
-                      <a href="<%= url %>" class="dropdown-item" target="_self"><%= title %></a>
-                    <% else %>
-                      <a href="<%= url %>" class="dropdown-item" target="_blank"><%= title %>
-                        <span class="external-link-icon">
-                          <%= render BlockScoutWeb.IconsView, "_external_link.html" %>
-                        </span>
-                      </a>
-                    <% end %>
-                <% end %>
-              <% end %>
-            </div>
-          </li>
-        <% end %>
-        <%!-- Mainnet network-switcher hidden — preserved below for future use --%>
-        <%= if false do %>
-        <li class="nav-item dropdown">
-          <a class="nav-link topnav-nav-link active-icon <%= if dropdown_nets() != [], do: "dropdown-toggle" %>" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="nav-link-icon">
-              <%= render BlockScoutWeb.IconsView, "_active_icon.html" %>
-            </span>
-            <%= subnetwork_title() %>
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-            <%= unless Enum.empty?(main_nets) do %>
-              <a class="dropdown-item header division">Mainnets</a>
-              <%= for %{url: url, title: title} <- main_nets do %>
-                <a class="dropdown-item" href="<%= url %>"><%= title %></a>
-              <% end %>
-            <% end %>
-            <%= unless Enum.empty?(test_nets) do %>
-              <a class="dropdown-item header division">Testnets</a>
-              <%= for %{url: url, title: title} <- test_nets do %>
-                <a class="dropdown-item" href="<%= url %>"><%= title %></a>
-              <% end %>
-            <% end %>
-            <%= unless Enum.empty?(other_nets) do %>
-              <a class="dropdown-item header division">Other Networks</a>
-              <%= for %{url: url, title: title} <- other_nets do %>
-                <a class="dropdown-item" href="<%= url %>"><%= title %></a>
-              <% end %>
-            <% end %>
-          </div>
-        </li>
-        <% end %>
-
-        <!-- Dark mode changer -->
-        <%!--
-        <%= unless Application.get_env(:block_scout_web, :permanent_light_mode_enabled) || Application.get_env(:block_scout_web, :permanent_dark_mode_enabled) do %>
-          <button class="dark-mode-changer" id="dark-mode-changer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16">
-              <path fill="#9B62FF" fill-rule="evenodd" d="M14.88 11.578a.544.544 0 0 0-.599-.166 5.7 5.7 0 0 1-1.924.321c-3.259 0-5.91-2.632-5.91-5.866 0-1.947.968-3.759 2.59-4.849a.534.534 0 0 0-.225-.97A5.289 5.289 0 0 0 8.059 0C3.615 0 0 3.588 0 8s3.615 8 8.059 8c2.82 0 5.386-1.423 6.862-3.806a.533.533 0 0 0-.041-.616z"/>
-            </svg>
-          </button>
-        <% end %>
-        --%>
-        <li class="nav-item">
-          <button 
-            class="btn-add-chain-to-mm js-btn-add-chain-to-mm topnav-nav-link" 
-            style="background: rgba(226, 182, 73, 0.1); border: 1px solid rgba(226, 182, 73, 0.4); color: #E2B649; border-radius: 8px; font-weight: 600; padding: 6px 16px; margin: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: all 0.3s ease-in-out;"
-            onmouseover="this.style.background='rgba(226, 182, 73, 0.2)'; this.style.borderColor='#E2B649';"
-            onmouseout="this.style.background='rgba(226, 182, 73, 0.1)'; this.style.borderColor='rgba(226, 182, 73, 0.4)';"
-            onclick="addNetworkToMetamask()"
-          >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width: 20px; margin-right: 8px; pointer-events: none;" />
+<nav class="glass-header fixed w-full top-0 z-50 px-4 py-3 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 group">
+        <img src="<%= static_path(@conn, "/images/amero_x_logo.png") %>" class="w-9 h-9 rounded-full group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(226,182,73,0.3)] object-cover" alt="Amero X Logo">
+        <span class="text-xl font-bold tracking-tight text-white group-hover:text-amero-gold transition-colors">Amero X Scan</span>
+    </a>
+    
+    <div class="hidden lg:flex gap-6 items-center text-sm font-medium text-gray-300">
+        <% current_view = Phoenix.Controller.view_module(@conn) %>
+        <a href="/" class="<%= if current_view == BlockScoutWeb.ChainView do %>text-amero-gold<% else %>hover:text-amero-gold text-gray-300<% end %> transition-colors">Home</a>
+        <a href="/blocks" class="<%= if current_view == BlockScoutWeb.BlockView do %>text-amero-gold<% else %>hover:text-amero-gold text-gray-300<% end %> transition-colors">Blocks</a>
+        <a href="/txs" class="<%= if current_view == BlockScoutWeb.TransactionView do %>text-amero-gold<% else %>hover:text-amero-gold text-gray-300<% end %> transition-colors">Transactions</a>
+        <a href="/tokens" class="<%= if current_view == BlockScoutWeb.Tokens.TokenView || current_view == BlockScoutWeb.TokenView do %>text-amero-gold<% else %>hover:text-amero-gold text-gray-300<% end %> transition-colors">Tokens</a>
+        <div class="w-px h-4 bg-white/10 mx-2"></div>
+        <button id="theme-toggle" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 hover:border-amero-gold/50 px-3 py-1.5 rounded-lg border border-white/10 transition-all cursor-pointer">
+            <svg id="theme-icon" class="w-4 h-4 text-amero-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+        <button class="btn-add-chain-to-mm js-btn-add-chain-to-mm topnav-nav-link" style="background: rgba(226, 182, 73, 0.1); border: 1px solid rgba(226, 182, 73, 0.4); color: rgb(226, 182, 73); border-radius: 8px; font-weight: 600; padding: 6px 16px; margin: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: 0.3s ease-in-out;" onmouseover="this.style.background='rgba(226, 182, 73, 0.2)'; this.style.borderColor='#E2B649';" onmouseout="this.style.background='rgba(226, 182, 73, 0.1)'; this.style.borderColor='rgba(226, 182, 73, 0.4)';" onclick="addNetworkToMetamask()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width: 20px; margin-right: 8px; pointer-events: none;">
             MetaMask
-          </button>
-        </li>
-        <input id="js-subnetwork" class="d-none" value="<%= Application.get_env(:block_scout_web, BlockScoutWeb.Chain)[:subnetwork] %>" />
-        <script>
-          function addNetworkToMetamask() {
-            if (typeof window.ethereum !== 'undefined') {
-              const chainIdDecimal = document.getElementById('js-chain-id').value;
-              const chainIdHex = '0x' + parseInt(chainIdDecimal).toString(16);
-              const rpcUrl = document.getElementById('js-json-rpc').value;
-              const subNetwork = document.getElementById('js-subnetwork').value;
-              const coinName = document.getElementById('js-coin-name').value;
-              
-              window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: chainIdHex,
-                  chainName: subNetwork,
-                  nativeCurrency: {
-                    name: coinName,
-                    symbol: coinName,
-                    decimals: 18
-                  },
-                  rpcUrls: [rpcUrl],
-                  blockExplorerUrls: [window.location.origin]
-                }]
-              }).then(() => {
-                console.log('Network added to MetaMask');
-              }).catch((error) => {
-                console.error(error);
-                if (error.code === 4001) {
-                  console.log('User rejected the request');
-                } else {
-                  alert('Error adding network: ' + error.message);
-                }
-              });
-            } else {
-              alert('MetaMask is not installed. Please install the MetaMask extension to use this feature.');
-            }
-          }
-        </script>
-        <%= render BlockScoutWeb.LayoutView, "_account_menu_item.html", conn: @conn, current_user: @current_user %>
-      </ul>
-      
-      <%= if Phoenix.Controller.view_module(@conn) != Elixir.BlockScoutWeb.ChainView do %>
-        <%= render BlockScoutWeb.LayoutView, "_search.html", conn: @conn, id: "main-search-autocomplete", additional_classes: ["mobile-search-hide"] %>
-      <% end %>
-
+        </button>
     </div>
-  </div>
-  <%= render BlockScoutWeb.LayoutView, "_search.html", conn: @conn, id: "main-search-autocomplete-mobile", additional_classes: ["mobile-search-show"] %>
 </nav>
+<script>
+  async function addNetworkToMetamask() {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const chainId = document.getElementById('js-chain-id')?.value || "93865";
+        const chainIdHex = "0x" + parseInt(chainId).toString(16);
+        const subnetwork = document.getElementById('js-subnetwork')?.value || "Amero-X";
+        const coinName = document.getElementById('js-coin-name')?.value || "AMX";
+        const blockExplorerUrls = [window.location.origin];
+
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: chainIdHex,
+            chainName: subnetwork,
+            rpcUrls: ['http://84.32.220.100:4000/'],
+            nativeCurrency: {
+              name: coinName,
+              symbol: coinName,
+              decimals: 18,
+            },
+            blockExplorerUrls: blockExplorerUrls
+          }]
+        });
+      } catch (error) {
+        console.error("Failed to add network to metamask", error);
+      }
+    } else {
+      alert("MetaMask is not installed. Please install the MetaMask extension to use this feature.");
+    }
+  }
+</script>

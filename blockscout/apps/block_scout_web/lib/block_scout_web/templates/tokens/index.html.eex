@@ -1,65 +1,105 @@
-<section
-	class="container"
-	data-page="tokens"
-	data-chain-id="<%= Application.get_env(:block_scout_web, :chain_id) %>"
-	data-display-token-icons="<%= Application.get_env(:block_scout_web, :display_token_icons) %>"
+<main 
+        class="flex-grow container mx-auto px-4 pt-28 pb-12 max-w-[1400px] relative z-10"
+        data-page="tokens"
+        data-chain-id="<%= Application.get_env(:block_scout_web, :chain_id) %>"
+        data-display-token-icons="<%= Application.get_env(:block_scout_web, :display_token_icons) %>"
 >
   <%= render BlockScoutWeb.Advertisement.TextAdView, "index.html", conn: @conn %>
-  <div class="card">
-    <div class="card-body" data-async-load data-async-listing="<%= @current_path %>" data-no-self-calls>
-	  <h1 class="card-title list-title-description"><%= gettext "Tokens" %></h1>
+  
+  <div class="mb-6 pb-2 relative z-50 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <h1 class="text-2xl font-semibold text-white mb-2"><%= gettext "Tokens" %></h1>
+      
+      <div class="search-container relative z-50 flex items-center rounded-xl p-1.5 max-w-3xl w-full backdrop-blur-md bg-white/5 border border-white/10 mt-4 sm:mt-0">
+          <div class="relative flex-shrink-0">
+              <button type="button" id="token-search-filter-button" onclick="document.getElementById('token-search-filter-menu').classList.toggle('hidden')" class="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-lg border border-white/5 cursor-pointer transition-colors ml-0.5 whitespace-nowrap focus:outline-none">
+                  <span id="token-search-filter-label"><%= gettext "Tokens" %></span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
 
-	<div class="list-top-pagination-container-wrapper tokens-list-search-input-outer-container d-flex" style="float: right;">
-		<label class="tokens-list-search-input-container tokens mr-3">
-			<input data-search-field="" class="form-control tokens-list-search-input search-input" type="text" name="filter" placeholder="Token name or symbol" id="search-text-input" />
-		</label>
-    	<%= render BlockScoutWeb.CommonComponentsView, "_pagination_container.html", position: "top", cur_page_number: "1", show_pagination_limit: true, data_next_page_button: true, data_prev_page_button: true %>
-	</div>
-
-    <div class="addresses-table-container">
-      <div class="stakes-table-container">
-	<table>
-	  <thead>
-	    <tr>
-	      <th class="stakes-table-th">
-			<div class="stakes-table-th-content">&nbsp;</div>
-	      </th>
-		  <th class="stakes-table-th">
-			<div>&nbsp;</div>
-		  </th>
-	      <th class="stakes-table-th">
-			<div class="stakes-table-th-content"><%= gettext "Token" %></div>
-	      </th>
-	      <th class="stakes-table-th">
-			<div class="stakes-table-th-content"><%= gettext "Address" %></div>
-	      </th>
-		  <th class="stakes-table-th">
-			<div class="stakes-table-th-content">
-			<%= gettext "Circulating Market Cap" %>
-			</div>
-	      </th>
-	      <th class="stakes-table-th">
-			<div class="stakes-table-th-content">
-			<%= gettext "Total Supply" %>
-			</div>
-	      </th>
-	      <th class="stakes-table-th">
-			<div class="stakes-table-th-content">
-			<%= gettext "Holders Count" %>
-			</div>
-	      </th>
-	    </tr>
-	  </thead>
-	  <tbody data-items data-selector="top-tokens-list">
-	    <%= render BlockScoutWeb.CommonComponentsView, "_table-loader.html", columns_num: 7 %>
-	  </tbody>
-	</table>
+              <div id="token-search-filter-menu" class="dropdown-menu hidden absolute left-0 z-50 mt-2 w-48 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.8)] bg-black/90 backdrop-blur-xl border border-amero-gold/30 py-2 focus:outline-none overflow-hidden">
+                  <button type="button" onclick="selectTokenSearchFilter(this, 'Tokens')" class="token-search-filter-item group flex w-full items-center px-4 py-2.5 text-left hover:bg-amero-gold/10 transition-colors text-[13px] text-amero-gold font-medium">
+                      <span class="w-5 flex-shrink-0 inline-flex items-center text-amero-gold checkmark">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                      </span>
+                      <span class="group-hover:text-amero-gold transition-colors"><%= gettext "Tokens" %></span>
+                  </button>
+                  <button type="button" onclick="selectTokenSearchFilter(this, 'Name Tags')" class="token-search-filter-item group flex w-full items-center px-4 py-2.5 text-left hover:bg-amero-gold/10 transition-colors text-[13px] text-gray-300 font-normal">
+                      <span class="w-5 flex-shrink-0 inline-flex items-center text-amero-gold checkmark hidden">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                      </span>
+                      <span class="group-hover:text-amero-gold transition-colors"><%= gettext "Name Tags" %></span>
+                  </button>
+              </div>
+          </div>
+          <div class="w-full relative flex items-center">
+              <input data-search-field="" id="search-text-input" class="bg-transparent border-none outline-none focus:outline-none focus:ring-0 w-full py-2.5 px-4 text-white placeholder-gray-500 text-sm" type="text" name="filter" placeholder="<%= gettext "Token name or symbol" %>" />
+              <button type="button" class="flex-shrink-0 bg-amero-gold hover:bg-yellow-500 text-black px-6 py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center mr-0.5 cursor-pointer border-none outline-none focus:outline-none">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </button>
+          </div>
       </div>
+  </div>
+
+  <script>
+      document.addEventListener('click', function(event) {
+          var menu = document.getElementById('token-search-filter-menu');
+          var button = document.getElementById('token-search-filter-button');
+          if (menu && !menu.classList.contains('hidden') && !button.contains(event.target) && !menu.contains(event.target)) {
+              menu.classList.add('hidden');
+          }
+      });
+
+      function selectTokenSearchFilter(element, filterName) {
+          document.getElementById('token-search-filter-label').innerText = filterName;
+          
+          document.querySelectorAll('.token-search-filter-item').forEach(function(item) {
+              item.classList.remove('text-amero-gold', 'font-medium');
+              item.classList.add('text-gray-300', 'font-normal');
+              var check = item.querySelector('.checkmark');
+              if (check) check.classList.add('hidden');
+          });
+
+          element.classList.remove('text-gray-300', 'font-normal');
+          element.classList.add('text-amero-gold', 'font-medium');
+          var activeCheck = element.querySelector('.checkmark');
+          if (activeCheck) activeCheck.classList.remove('hidden');
+
+          document.getElementById('token-search-filter-menu').classList.add('hidden');
+      }
+  </script>
+  
+  <div class="glass-panel rounded-2xl overflow-hidden flex flex-col shadow-2xl relative" data-async-load data-async-listing="<%= @current_path %>" data-no-self-calls>
+    
+    <div class="p-4 border-b border-white/5 flex flex-col sm:flex-row items-center gap-4 text-sm text-gray-400 bg-white/[0.01]">
+        <div class="list-top-pagination-container-wrapper w-full">
+            <%= render BlockScoutWeb.CommonComponentsView, "_pagination_container.html", position: "top", cur_page_number: "1", show_pagination_limit: true, data_next_page_button: true, data_prev_page_button: true %>
+        </div>
     </div>
 
-    <%= render BlockScoutWeb.CommonComponentsView, "_pagination_container.html", position: "bottom", cur_page_number: "1", show_pagination_limit: true, data_next_page_button: true, data_prev_page_button: true %>
+    <div class="overflow-x-auto no-scrollbar w-full relative">
+      <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
+        <thead>
+          <tr class="bg-black/20 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <th class="px-6 py-4">#</th>
+            <th class="px-3 py-4 w-10"></th>
+            <th class="px-6 py-4"><%= gettext "Token" %></th>
+            <th class="px-6 py-4"><%= gettext "Address" %></th>
+            <th class="px-6 py-4"><%= gettext "Circulating Market Cap" %></th>
+            <th class="px-6 py-4"><%= gettext "Total Supply" %></th>
+            <th class="px-6 py-4"><%= gettext "Holders Count" %></th>
+          </tr>
+        </thead>
+        <tbody class="text-sm text-gray-300 divide-y divide-white/5" data-items data-selector="top-tokens-list">
+          <tr><td colspan="7" class="py-4"><%= render BlockScoutWeb.CommonComponentsView, "_tile-loader.html" %></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="p-4 border-t border-white/5 bg-white/[0.01]">
+        <%= render BlockScoutWeb.CommonComponentsView, "_pagination_container.html", position: "bottom", cur_page_number: "1", show_pagination_limit: true, data_next_page_button: true, data_prev_page_button: true %>
     </div>
   </div>
+
   <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/tokens.js") %>"></script>
   <script defer data-cfasync="false" src="<%= static_path(@conn, "/js/token-transfers-toggle.js") %>"></script>
-</section>
+</main>

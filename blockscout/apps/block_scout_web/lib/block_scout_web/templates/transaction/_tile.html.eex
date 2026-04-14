@@ -3,49 +3,49 @@
 <% current_user = AuthController.current_user(@conn) %>
 <% transaction_tags = BlockScoutWeb.Models.GetTransactionTags.get_transaction_with_addresses_tags(@transaction, current_user) %>
 
-<div class="col-12 fade-up-blocks-chain px-0" data-test="<%= type_suffix(@transaction) %>" data-identifier-hash="<%= @transaction.hash %>">
-  <div class="d-flex flex-row align-items-center" style="padding: 15px 10px; border-bottom: 1px solid rgba(226, 182, 73, 0.15);">
-    
-    <!-- Left Icon -->
-    <div class="mr-3 d-none d-sm-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background-color: rgba(226, 182, 73, 0.05); border-radius: 8px;">
-      <i class="fa fa-file-text-o" style="color: #E2B649; font-size: 1.2rem;"></i>
+<div class="col-12 px-0 interactive-row flex items-center justify-between p-4 new-item-enter" data-test="<%= type_suffix(@transaction) %>" data-identifier-hash="<%= @transaction.hash %>">
+
+    <div class="flex items-center gap-4 w-1/3 min-w-0">
+        <div class="icon-wrap w-10 h-10 rounded-lg bg-white/5 border border-white/5 hidden sm:flex items-center justify-center text-gray-400 shrink-0">
+            <span class="text-[11px] font-semibold tracking-tight">Tx</span>
+        </div>
+        <div class="min-w-0">
+            <div class="flex items-center gap-2">
+                <div class="text-amero-gold font-medium truncate w-24 sm:w-32 inline-block cursor-pointer hover:underline [&>a]:text-amero-gold">
+                    <%= render "_link.html", transaction_hash: @transaction.hash, data_test: "address_hash_link" %>
+                </div>
+                <!-- Method Tag if present -->
+                <% method_name = Transaction.get_method_name(@transaction) %>
+                <%= if method_name do %>
+                  <span class="method-badge truncate max-w-[80px]" title="<%= method_name %>"><%= method_name %></span>
+                <% end %>
+            </div>
+            <div class="text-xs text-gray-500 mt-0.5" data-test="data-from-now" data-from-now="<%= block_timestamp(@transaction) %>"></div>
+        </div>
     </div>
     
-    <!-- Left Details -->
-    <div class="d-flex flex-column justify-content-center pr-3" style="width: 25%; min-width: 0;">
-      <div class="text-truncate d-flex align-items-center" style="font-weight: 600; font-size: 1.05rem;">
-        <%= render "_link.html", transaction_hash: @transaction.hash, data_test: "address_hash_link" %>
-        <!-- Method Tag if present -->
-        <% method_name = Transaction.get_method_name(@transaction) %>
-        <%= if method_name do %>
-          <span class="badge text-truncate ml-2" style="background: rgba(226,182,73,0.1); color: #E2B649; border: 1px solid rgba(226,182,73,0.2);"><%= method_name %></span>
-        <% end %>
-      </div>
-      <div style="font-size: 0.8rem; color: #A0A0A0; margin-top: 4px;" data-test="data-from-now" data-from-now="<%= block_timestamp(@transaction) %>"></div>
+    <div class="flex flex-col items-start sm:w-1/3 min-w-0">
+        <div class="text-sm text-gray-300 flex items-center gap-1 w-full truncate">
+            <span class="text-gray-500 w-10 shrink-0">From</span> 
+            <div class="truncate w-24 sm:w-32 text-amero-gold hover:underline [&>a]:text-amero-gold">
+                <%= @transaction |> BlockScoutWeb.AddressView.address_partial_selector(:from, assigns[:current_address]) |> BlockScoutWeb.RenderHelper.render_partial() %>
+            </div>
+        </div>
+        <div class="text-sm text-gray-300 flex items-center gap-1 mt-0.5 w-full truncate">
+            <span class="text-gray-500 w-10 shrink-0">To</span> 
+            <div class="truncate w-24 sm:w-32 text-amero-gold hover:underline [&>a]:text-amero-gold">
+                <%= @transaction |> BlockScoutWeb.AddressView.address_partial_selector(:to, assigns[:current_address]) |> BlockScoutWeb.RenderHelper.render_partial() %>
+            </div>
+            <%= if transaction_tags.personal_transaction_tag && transaction_tags.personal_transaction_tag.name !== :error do %>
+              <%= render BlockScoutWeb.FormView, "_tag.html", text: transaction_tags.personal_transaction_tag.name, additional_classes: [tag_name_to_label(transaction_tags.personal_transaction_tag.name), "ml-1"] %>
+            <% end %>
+        </div>
     </div>
     
-    <!-- Middle Details: From -> To -->
-    <div class="d-flex flex-column justify-content-center flex-grow-1 text-truncate" style="min-width: 0;">
-      <div class="text-truncate" style="font-size: 0.9rem; color: #e8e8e8;">
-        <span style="color: #A0A0A0; display: inline-block; width: 40px;">From</span>
-        <%= @transaction |> BlockScoutWeb.AddressView.address_partial_selector(:from, assigns[:current_address]) |> BlockScoutWeb.RenderHelper.render_partial() %>
-      </div>
-      <div class="text-truncate" style="font-size: 0.9rem; color: #e8e8e8; margin-top: 4px;">
-        <span style="color: #A0A0A0; display: inline-block; width: 40px;">To</span>
-        <%= @transaction |> BlockScoutWeb.AddressView.address_partial_selector(:to, assigns[:current_address]) |> BlockScoutWeb.RenderHelper.render_partial() %>
-        
-        <%= if transaction_tags.personal_transaction_tag && transaction_tags.personal_transaction_tag.name !== :error do %>
-          <%= render BlockScoutWeb.FormView, "_tag.html", text: transaction_tags.personal_transaction_tag.name, additional_classes: [tag_name_to_label(transaction_tags.personal_transaction_tag.name), "ml-1"] %>
-        <% end %>
-      </div>
+    <div class="text-right hidden sm:block shrink-0 pl-2">
+        <div class="value-badge text-xs font-medium px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/10 whitespace-nowrap">
+            <%= value(@transaction, include_label: false) %> <%= Explorer.coin_name() %>
+        </div>
     </div>
     
-    <!-- Right Detail (Value) -->
-    <div class="ml-4 text-right d-none d-md-block">
-      <div class="badge" style="background-color: transparent; color: #E8E8E8; border: 1px solid rgba(226, 182, 73, 0.2); padding: 5px 8px; font-weight: 500; border-radius: 6px; font-size: 0.85rem;">
-        <%= value(@transaction, include_label: false) %> <%= Explorer.coin_name() %>
-      </div>
-    </div>
-    
-  </div>
 </div>
