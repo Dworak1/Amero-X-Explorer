@@ -324,8 +324,18 @@ function firstPageLoad (store) {
     const input = parseInt($input.value)
     const loading = store.getState().loading
     const pagesLimit = store.getState().pagesLimit
-    if (!isNaN(input) && input <= pagesLimit && !loading) { loadPageByNumber(store, input) }
-    if (!loading || isNaN(input) || input > pagesLimit) { $input.value = '' }
+    
+    if (!loading && !isNaN(input)) {
+      if (input > pagesLimit) {
+        alert(`There are only ${pagesLimit} pages available`)
+      } else if (input <= 0) {
+        alert('Page number must be greater than 0')
+      } else {
+        loadPageByNumber(store, input)
+      }
+    }
+    
+    if (!loading || isNaN(input) || input > pagesLimit || input <= 0) { $input.value = '' }
     return false
   })
 }

@@ -1,7 +1,1 @@
-<footer class="mt-auto py-6 border-t border-white/5 bg-[#050505] flex flex-col items-center justify-center relative z-10" style="margin-top: auto;">
-    <div class="flex items-center gap-2 mb-2 hover:opacity-80 transition-opacity cursor-pointer">
-        <div class="w-5 h-5 rounded bg-amero-gold flex items-center justify-center text-black font-bold text-[10px]">X</div>
-        <span class="text-white text-sm font-semibold">Amero X</span>
-    </div>
-    <p class="text-xs text-gray-500 font-medium">Powered by Blockscout & Amero X Team</p>
-</footer>
+

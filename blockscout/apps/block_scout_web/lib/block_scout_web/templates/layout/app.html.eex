@@ -12,13 +12,23 @@
         <link rel="preload" href="<%= static_path(@conn, "/js/chart-loader.js") %>" as="script">
         <link rel="preload" href="<%= static_path(@conn, "/js/token-transfers-toggle.js") %>" as="script">
       <% Elixir.BlockScoutWeb.TransactionView -> %>
-        <!-- app.css disabled for Tailwind UI -->
-        <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
-        <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <%= if Phoenix.Controller.action_name(@conn) == :index do %>
+          <!-- app.css disabled for Tailwind UI list view -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% else %>
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+        <% end %>
       <% Elixir.BlockScoutWeb.BlockView -> %>
-        <!-- app.css disabled for Tailwind UI -->
-        <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
-        <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <%= if Phoenix.Controller.action_name(@conn) == :index do %>
+          <!-- app.css disabled for Tailwind UI -->
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% else %>
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+          <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
+          <link rel="preload" href="<%= static_path(@conn, "/js/custom-scrollbar.js") %>" as="script">
+        <% end %>
         <% Elixir.BlockScoutWeb.TokensView -> %>
           <!-- app.css disabled for Tailwind UI -->
           <link rel="stylesheet" href="<%= static_path(@conn, "/css/custom-scrollbar-styles.css") %>">
@@ -214,36 +224,41 @@
       <!-- <div class="alert alert-warning text-center mb-0 p-3">
           <%= raw("The new Blockscout UI is now open source! Learn how to <a href='https://docs.blockscout.com/for-developers/deployment/frontend-migration' target='_blank'>deploy it here</a>") %>
       </div> -->
-      <% show_maintenance_alert = Application.get_env(:block_scout_web, BlockScoutWeb.Chain)[:show_maintenance_alert] %>
-      <%= if show_maintenance_alert do %>
-        <div class="alert alert-warning text-center mb-0 p-3">
-          <%= raw(System.get_env("MAINTENANCE_ALERT_MESSAGE")) %>
-        </div>
-      <% end %>
-      <% hide_indexing_progress_alert = Application.get_env(:indexer, :hide_indexing_progress_alert) %>
-      <%= unless hide_indexing_progress_alert do %>
-        <% indexed_ratio_blocks = Chain.indexed_ratio_blocks() %>
-        <% indexed_ratio =
-        case Chain.finished_indexing_from_ratio?(indexed_ratio_blocks) do
-        false -> indexed_ratio_blocks
-        _ -> Chain.indexed_ratio_internal_transactions()
-        end %>
-        <%= if not Chain.finished_indexing_from_ratio?(indexed_ratio) do %>
-          <div class="alert alert-warning text-center mb-0 p-3" data-seindexed_ratiolector="indexed-status">
-            <%= render BlockScoutWeb.CommonComponentsView, "_loading_spinner.html" %>
-            <span data-indexed-ratio-blocks="<%= indexed_ratio_blocks %>" data-indexed-ratio="<%= indexed_ratio %>"></span>
-            <%= gettext("- We're indexing this chain right now. Some of the counts may be inaccurate.") %>
-          </div>
-        <% end %>
-      <% end %>
       <% session = Explorer.Account.enabled?() && Map.get(@conn.private, :plug_session) && Plug.Conn.get_session(@conn, :current_user) %>
       <%= render BlockScoutWeb.LayoutView, "_topnav.html", current_user: session, conn: @conn %>
-      <%= if session && !session[:email_verified] do %>
-        <p class="alert alert-warning" role="alert" style="margin-bottom: 0"><%= gettext("Please confirm your email address to use the My Account feature.") %> <%= gettext("A confirmation email was sent to") %> <a href="mailto:<%= session[:email] %>"><%=session[:email] %></a> <%= gettext "on sign up. Didn’t receive?" %> <a href="/api/account/v2/email/resend" class="ajax"><%= gettext "Resend verification email" %></a>.</p>
-      <% else %>
-        <p class="alert alert-info" role="alert"><%= Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :info) %></p>
-      <% end %>
-      <p class="alert alert-danger" role="alert"><%= Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :error) %></p>
+      
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-[1400px] z-[100] px-4 flex flex-col gap-2 pointer-events-none *:pointer-events-auto">
+        <% show_maintenance_alert = Application.get_env(:block_scout_web, BlockScoutWeb.Chain)[:show_maintenance_alert] %>
+        <%= if show_maintenance_alert do %>
+          <div class="alert bg-yellow-500/10 text-yellow-500 p-4 font-medium text-center mb-0 rounded-lg shadow-xl border border-yellow-500/30">
+            <%= raw(System.get_env("MAINTENANCE_ALERT_MESSAGE")) %>
+          </div>
+        <% end %>
+        
+        <% hide_indexing_progress_alert = Application.get_env(:indexer, :hide_indexing_progress_alert) %>
+        <%= unless hide_indexing_progress_alert do %>
+          <% indexed_ratio_blocks = Chain.indexed_ratio_blocks() %>
+          <% indexed_ratio =
+          case Chain.finished_indexing_from_ratio?(indexed_ratio_blocks) do
+          false -> indexed_ratio_blocks
+          _ -> Chain.indexed_ratio_internal_transactions()
+          end %>
+          <%= if not Chain.finished_indexing_from_ratio?(indexed_ratio) do %>
+            <div class="alert alert-warning text-center mb-0 p-3 rounded-lg shadow-md border border-yellow-500/30" data-seindexed_ratiolector="indexed-status">
+              <%= render BlockScoutWeb.CommonComponentsView, "_loading_spinner.html" %>
+              <span data-indexed-ratio-blocks="<%= indexed_ratio_blocks %>" data-indexed-ratio="<%= indexed_ratio %>"></span>
+              <%= gettext("- We're indexing this chain right now. Some of the counts may be inaccurate.") %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <%= if session && !session[:email_verified] do %>
+          <p class="alert alert-warning rounded-lg shadow-md mb-0 border border-yellow-500/30" role="alert" style="margin-bottom: 0"><%= gettext("Please confirm your email address to use the My Account feature.") %> <%= gettext("A confirmation email was sent to") %> <a href="mailto:<%= session[:email] %>"><%=session[:email] %></a> <%= gettext "on sign up. Didn’t receive?" %> <a href="/api/account/v2/email/resend" class="ajax"><%= gettext "Resend verification email" %></a>.</p>
+        <% else %>
+          <p class="alert alert-info rounded-lg shadow-md mb-0 border border-blue-500/30" role="alert" style="display: <%= if Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :info), do: "block", else: "none" %>"><%= Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :info) %></p>
+        <% end %>
+        <p class="alert alert-danger rounded-lg shadow-md mb-0 border border-red-500/30" role="alert" style="display: <%= if Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :error), do: "block", else: "none" %>"><%= Map.get(@conn.private, :phoenix_flash) && Phoenix.Controller.get_flash(@conn, :error) %></p>
+      </div>
       <div class="js-ad-dependant-pt">
         <%= @inner_content %>
       </div>

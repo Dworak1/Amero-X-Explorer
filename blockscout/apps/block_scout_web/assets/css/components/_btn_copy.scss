@@ -16,6 +16,7 @@ $btn-copy-small-dimensions: 22px !default;
   svg {
     width: $btn-copy-dimensions;
     height: $btn-copy-dimensions;
+    pointer-events: none;
   }
   &.btn-copy-icon-small {
     &.btn-copy-icon-custom {
@@ -34,7 +35,14 @@ $btn-copy-small-dimensions: 22px !default;
     svg {
       width: $btn-copy-small-dimensions;
       height: $btn-copy-small-dimensions;
+      pointer-events: none;
     }
+  }
+}
+
+.btn-copy-ico {
+  svg {
+    pointer-events: none;
   }
 }
 
