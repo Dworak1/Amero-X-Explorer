@@ -40,7 +40,7 @@ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git || true
 asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git || true
 
 # Navigate to blockscout and install exact versions defined in .tool-versions
-cd "/root/Amero X MainNet/blockscout"
+cd "/root/amero-x/blockscout/blockscout"
 asdf install 
 
 echo "Installing Elixir Hex and Rebar (Package Managers)..."
