@@ -88,12 +88,20 @@ const appJs =
     },
     module: {
       rules: [
+        // Allow @reown/appkit and @walletconnect packages (WalletConnect v2) to be processed
+        // as javascript/auto so webpack doesn't choke on their ESM import.meta usage
+        {
+          test: /\.m?js$/,
+          include: /node_modules\/(@reown|@walletconnect|@wagmi|@rainbow-me|viem|wagmi)/,
+          resolve: { fullySpecified: false },
+          type: 'javascript/auto'
+        },
         {
           test: /\.css$/,
           use: ["style-loader", "css-loader"],
         },
         {
-          test: /\.js$/,
+          test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader'
@@ -146,6 +154,12 @@ const appJs =
       ]
     },
     resolve: {
+      extensions: ['.js', '.jsx'],
+      fullySpecified: false,
+      alias: {
+        // MetaMask SDK pulls in React Native async-storage — stub it out in browser
+        '@react-native-async-storage/async-storage': false,
+      },
       fallback: {
         "os": require.resolve("os-browserify/browser"),
         "https": require.resolve("https-browserify"),
@@ -154,6 +168,7 @@ const appJs =
         "util": require.resolve("util/"),
         "stream": require.resolve("stream-browserify"),
         "assert": require.resolve("assert/"),
+        "process": require.resolve("process/browser"),
       }
     },
     plugins: [
@@ -163,7 +178,11 @@ const appJs =
       new CopyWebpackPlugin(
         {
           patterns: [
-            { from: 'static/', to: '../' }
+            { from: 'static/', to: '../' },
+            {
+              from: 'node_modules/@rainbow-me/rainbowkit/dist/index.css',
+              to: '../css/rainbowkit.css'
+            }
           ]
         }
       ),
