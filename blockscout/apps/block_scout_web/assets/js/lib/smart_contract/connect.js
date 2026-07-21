@@ -19,32 +19,11 @@ let provider
 let web3Modal
 
 /**
- * Setup the orchestra
+ * No-op: wallet init is now handled by RainbowKit (rainbowkit_connect.jsx).
+ * Kept here so functions.js callers don't error.
  */
-export async function web3ModalInit (connectToWallet, ...args) {
-  return new Promise((resolve) => {
-    // Tell Web3modal what providers we have available.
-    // Built-in web browser provider (only one can exist as a time)
-    // like MetaMask, Brave or Opera is added automatically by Web3modal
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: walletConnectOptions
-      }
-    }
-
-    web3Modal = new Web3Modal({
-      cacheProvider: true,
-      providerOptions,
-      disableInjectedProvider: false
-    })
-
-    if (web3Modal.cachedProvider) {
-      connectToWallet(...args)
-    }
-
-    resolve(web3Modal)
-  })
+export async function web3ModalInit (_connectToWallet, ..._args) {
+  return Promise.resolve()
 }
 
 export const walletEnabled = () => {

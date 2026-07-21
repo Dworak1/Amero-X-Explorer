@@ -40,3 +40,10 @@ import './lib/dark_mode'
 import swal from 'sweetalert2'
 // @ts-ignore
 window.Swal = swal
+
+import { mountWalletConnect } from './lib/wallet/rainbowkit_connect'
+
+// Mount RainbowKit wallet button wherever the placeholder div exists on the page
+document.addEventListener('DOMContentLoaded', () => {
+  mountWalletConnect('rainbowkit-root')
+})

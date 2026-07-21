@@ -3,7 +3,9 @@
       <%= render BlockScoutWeb.IconsView, "_inactive_icon.html" %>
     </span>
      <h2 style="margin-top: -2px;">Disconnected</h2>
-    <button connect-wallet class="button btn-line ml-4">Connect wallet</button>
+    <%# RainbowKit mounts here; the hidden button keeps the existing click-binding in functions.js harmless %>
+    <div id="rainbowkit-root" class="ml-4"></div>
+    <button connect-wallet class="button btn-line ml-4" style="display:none;">Connect wallet</button>
 </div>
 <div connected-to class="connect-container row hidden">
     <div class="d-flex ml-3">
@@ -12,5 +14,32 @@
       </span>
       <h2 style="margin-top: -2px; min-width: 104px;" class="mr-2">Connected to</h2><h3 connected-to-address></h3>
     </div>
-    <button disconnect-wallet class="button btn-line ml-3">Disconnect wallet</button>
+    <button disconnect-wallet class="button btn-line ml-3" style="display:none;">Disconnect wallet</button>
 </div>
+<script>
+  // Bridge RainbowKit events to Blockscout's existing DOM show/hide helpers
+  document.addEventListener('rainbowkitConnected', function (e) {
+    var address = e.detail.address
+
+    // Show "Connected to" UI
+    var connectTo = document.querySelector('[connect-to]')
+    var connectedTo = document.querySelector('[connected-to]')
+    var connectWrap = document.querySelector('[connect-wallet]')
+    if (connectTo) connectTo.classList.add('hidden')
+    if (connectedTo) connectedTo.classList.remove('hidden')
+    if (connectWrap) connectWrap.classList.add('hidden')
+
+    // Set the address link
+    var addrEl = document.querySelector('[connected-to-address]')
+    if (addrEl) {
+      addrEl.innerHTML = '<a href="/address/' + address + '">' + address + '</a>'
+    }
+  })
+
+  document.addEventListener('rainbowkitDisconnected', function () {
+    var connectTo = document.querySelector('[connect-to]')
+    var connectedTo = document.querySelector('[connected-to]')
+    if (connectTo) connectTo.classList.remove('hidden')
+    if (connectedTo) connectedTo.classList.add('hidden')
+  })
+</script>
